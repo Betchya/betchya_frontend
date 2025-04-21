@@ -1,13 +1,13 @@
+import 'package:betchya_frontend/features/auth/providers/auth_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:betchya_frontend/features/auth/providers/auth_provider.dart';
 
 class HomeScreen extends ConsumerWidget {
   const HomeScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final user = ref.watch(authProvider);
+    final user = ref.watch(authControllerProvider);
 
     return Scaffold(
       appBar: AppBar(
@@ -16,7 +16,7 @@ class HomeScreen extends ConsumerWidget {
           IconButton(
             icon: const Icon(Icons.logout),
             onPressed: () {
-              ref.read(authProvider.notifier).signOut();
+              ref.read(authControllerProvider.notifier).signOut();
             },
           ),
         ],

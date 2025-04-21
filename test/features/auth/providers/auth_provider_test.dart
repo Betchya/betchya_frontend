@@ -1,8 +1,8 @@
-import 'package:flutter_test/flutter_test.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:betchya_frontend/features/auth/providers/auth_provider.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class MockSupabase extends Mock implements Supabase {}
 
@@ -51,30 +51,36 @@ void main() {
     test('updates state with user on successful signup', () async {
       final mockAuthResponse = MockAuthResponse();
       when(() => mockAuthResponse.user).thenReturn(mockUser);
-      when(() => mockGoTrueClient.signUp(
-            email: any<String>(named: 'email'),
-            password: any<String>(named: 'password'),
-          )).thenAnswer((_) async => mockAuthResponse);
+      when(
+        () => mockGoTrueClient.signUp(
+          email: any<String>(named: 'email'),
+          password: any<String>(named: 'password'),
+        ),
+      ).thenAnswer((_) async => mockAuthResponse);
 
       await container.read(authProvider.notifier).signUp(
             email: 'test@example.com',
             password: 'password123',
           );
 
-      verify(() => mockGoTrueClient.signUp(
-            email: 'test@example.com',
-            password: 'password123',
-          )).called(1);
+      verify(
+        () => mockGoTrueClient.signUp(
+          email: 'test@example.com',
+          password: 'password123',
+        ),
+      ).called(1);
 
       expect(container.read(authProvider), mockUser);
     });
 
     test('signUp failed signup throws error and keeps state null', () async {
       // Mock failed signup
-      when(() => mockGoTrueClient.signUp(
-            email: any(named: 'email'),
-            password: any(named: 'password'),
-          )).thenThrow(AuthException('Signup failed'));
+      when(
+        () => mockGoTrueClient.signUp(
+          email: any(named: 'email'),
+          password: any(named: 'password'),
+        ),
+      ).thenThrow(const AuthException('Signup failed'));
 
       // Attempt signup
       expect(
@@ -96,7 +102,7 @@ void main() {
       when(() => mockGoTrueClient.signInWithPassword(
             email: any(named: 'email'),
             password: any(named: 'password'),
-          )).thenAnswer((_) async => AuthResponse(user: mockUser, session: null));
+          ),).thenAnswer((_) async => AuthResponse(user: mockUser));
 
       // Sign in
       await container.read(authProvider.notifier).signIn(
@@ -113,7 +119,7 @@ void main() {
       when(() => mockGoTrueClient.signInWithPassword(
             email: any(named: 'email'),
             password: any(named: 'password'),
-          )).thenThrow(AuthException('Signin failed'));
+          ),).thenThrow(const AuthException('Signin failed'));
 
       // Attempt signin
       expect(
@@ -132,8 +138,7 @@ void main() {
   group('signOut', () {
     test('signOut sets state to null on successful signout', () async {
       // Mock successful signout
-      when(() => mockGoTrueClient.signOut())
-          .thenAnswer((_) async {});
+      when(() => mockGoTrueClient.signOut()).thenAnswer((_) async {});
 
       // Sign out
       await container.read(authProvider.notifier).signOut();
@@ -155,7 +160,7 @@ void main() {
       expect(container.read(authProvider), mockUser);
 
       when(() => mockGoTrueClient.signOut())
-          .thenThrow(AuthException('Signout failed'));
+          .thenThrow(const AuthException('Signout failed'));
 
       await expectLater(
         container.read(authProvider.notifier).signOut(),
