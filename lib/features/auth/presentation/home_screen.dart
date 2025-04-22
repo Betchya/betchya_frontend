@@ -7,28 +7,36 @@ class HomeScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final user = ref.watch(authControllerProvider);
+    final userAsync = ref.watch(authControllerProvider);
 
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Home'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.logout),
-            onPressed: () {
-              ref.read(authControllerProvider.notifier).signOut();
-            },
-          ),
-        ],
+    return userAsync.when(
+      loading: () => const Scaffold(
+        body: Center(child: CircularProgressIndicator()),
       ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Text('Welcome, ${user?.email ?? 'User'}!'),
-            const SizedBox(height: 16),
-            const Text('You are now logged in.'),
+      error: (err, stack) => Scaffold(
+        body: Center(child: Text('Error: \\${err.toString()}')),
+      ),
+      data: (user) => Scaffold(
+        appBar: AppBar(
+          title: const Text('Home'),
+          actions: [
+            IconButton(
+              icon: const Icon(Icons.logout),
+              onPressed: () {
+                ref.read(authControllerProvider.notifier).signOut();
+              },
+            ),
           ],
+        ),
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text('Welcome, \\${user?.email ?? 'User'}!'),
+              const SizedBox(height: 16),
+              const Text('You are now logged in.'),
+            ],
+          ),
         ),
       ),
     );

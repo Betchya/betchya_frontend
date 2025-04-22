@@ -1,22 +1,22 @@
+import 'package:betchya_frontend/features/auth/models/dob_input.dart';
+import 'package:betchya_frontend/features/auth/models/email_input.dart';
+import 'package:betchya_frontend/features/auth/models/password_input.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:formz/formz.dart';
-import 'package:betchya_frontend/features/auth/models/email_input.dart';
-import 'package:betchya_frontend/features/auth/models/password_input.dart';
-import 'package:betchya_frontend/features/auth/models/dob_input.dart';
 
 class SignUpFormState {
-  final EmailInput email;
-  final PasswordInput password;
-  final DOBInput dob;
-  final FormzStatus status;
-
   SignUpFormState({
     this.email = const EmailInput.pure(),
     this.password = const PasswordInput.pure(),
     this.dob = const DOBInput.pure(),
     this.status = FormzStatus.pure,
   });
+
+  final EmailInput email;
+  final PasswordInput password;
+  final DOBInput dob;
+  final FormzStatus status;
 
   SignUpFormState copyWith({
     EmailInput? email,

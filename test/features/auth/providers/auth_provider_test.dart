@@ -1,3 +1,4 @@
+import 'package:betchya_frontend/core/providers/supabase_providers.dart';
 import 'package:betchya_frontend/features/auth/providers/auth_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -43,132 +44,102 @@ void main() {
     container.dispose();
   });
 
-  test('initial state is null', () {
-    expect(container.read(authProvider), null);
+  test('initial state is AsyncData(null)', () async {
+    final state = await container.read(authControllerProvider.future);
+    expect(state, isNull);
+    final asyncState = container.read(authControllerProvider);
+    expect(asyncState, isA<AsyncData<User?>>());
+    expect(asyncState.value, isNull);
   });
 
   group('signUp', () {
     test('updates state with user on successful signup', () async {
       final mockAuthResponse = MockAuthResponse();
       when(() => mockAuthResponse.user).thenReturn(mockUser);
-      when(
-        () => mockGoTrueClient.signUp(
-          email: any<String>(named: 'email'),
-          password: any<String>(named: 'password'),
-        ),
-      ).thenAnswer((_) async => mockAuthResponse);
+      when(() => mockGoTrueClient.signUp(
+            email: any(named: 'email'),
+            password: any(named: 'password'),
+          )).thenAnswer((_) async => mockAuthResponse);
 
-      await container.read(authProvider.notifier).signUp(
-            email: 'test@example.com',
-            password: 'password123',
+      await container.read(authControllerProvider.notifier).signUp(
+            email: 'test@test.com',
+            password: 'password',
           );
 
-      verify(
-        () => mockGoTrueClient.signUp(
-          email: 'test@example.com',
-          password: 'password123',
-        ),
-      ).called(1);
-
-      expect(container.read(authProvider), mockUser);
+      final state = container.read(authControllerProvider);
+      expect(state, isA<AsyncData<User?>>());
+      expect(state.value, mockUser);
     });
 
-    test('signUp failed signup throws error and keeps state null', () async {
-      // Mock failed signup
-      when(
-        () => mockGoTrueClient.signUp(
-          email: any(named: 'email'),
-          password: any(named: 'password'),
-        ),
-      ).thenThrow(const AuthException('Signup failed'));
+    test('updates state with error on failed signup', () async {
+      when(() => mockGoTrueClient.signUp(
+            email: any(named: 'email'),
+            password: any(named: 'password'),
+          )).thenThrow(Exception('Signup failed'));
 
-      // Attempt signup
-      expect(
-        () => container.read(authProvider.notifier).signUp(
-              email: 'test@example.com',
-              password: 'password',
-            ),
-        throwsA(isA<AuthException>()),
-      );
+      await container.read(authControllerProvider.notifier).signUp(
+            email: 'fail@test.com',
+            password: 'password',
+          );
 
-      // State should remain null
-      expect(container.read(authProvider), null);
+      final state = container.read(authControllerProvider);
+      expect(state, isA<AsyncError<User?>>());
+      expect(state.error, isA<Exception>());
     });
   });
 
   group('signIn', () {
-    test('signIn updates state with user on successful signin', () async {
-      // Mock successful signin
+    test('updates state with user on successful sign in', () async {
+      final mockAuthResponse = MockAuthResponse();
+      when(() => mockAuthResponse.user).thenReturn(mockUser);
       when(() => mockGoTrueClient.signInWithPassword(
             email: any(named: 'email'),
             password: any(named: 'password'),
-          ),).thenAnswer((_) async => AuthResponse(user: mockUser));
+          )).thenAnswer((_) async => mockAuthResponse);
 
-      // Sign in
-      await container.read(authProvider.notifier).signIn(
-            email: 'test@example.com',
+      await container.read(authControllerProvider.notifier).signIn(
+            email: 'test@test.com',
             password: 'password',
           );
 
-      // State should be updated with user
-      expect(container.read(authProvider), mockUser);
+      final state = container.read(authControllerProvider);
+      expect(state, isA<AsyncData<User?>>());
+      expect(state.value, mockUser);
     });
 
-    test('signIn failed signin throws error and keeps state null', () async {
-      // Mock failed signin
+    test('updates state with error on failed sign in', () async {
       when(() => mockGoTrueClient.signInWithPassword(
             email: any(named: 'email'),
             password: any(named: 'password'),
-          ),).thenThrow(const AuthException('Signin failed'));
+          )).thenThrow(Exception('Sign in failed'));
 
-      // Attempt signin
-      expect(
-        () => container.read(authProvider.notifier).signIn(
-              email: 'test@example.com',
-              password: 'password',
-            ),
-        throwsA(isA<AuthException>()),
-      );
+      await container.read(authControllerProvider.notifier).signIn(
+            email: 'fail@test.com',
+            password: 'password',
+          );
 
-      // State should remain null
-      expect(container.read(authProvider), null);
+      final state = container.read(authControllerProvider);
+      expect(state, isA<AsyncError<User?>>());
+      expect(state.error, isA<Exception>());
     });
   });
 
   group('signOut', () {
-    test('signOut sets state to null on successful signout', () async {
-      // Mock successful signout
-      when(() => mockGoTrueClient.signOut()).thenAnswer((_) async {});
-
-      // Sign out
-      await container.read(authProvider.notifier).signOut();
-
-      // State should be null
-      expect(container.read(authProvider), null);
+    test('updates state to null after sign out', () async {
+      when(() => mockGoTrueClient.signOut()).thenAnswer((_) async => null);
+      await container.read(authControllerProvider.notifier).signOut();
+      final state = container.read(authControllerProvider);
+      expect(state, isA<AsyncData<User?>>());
+      expect(state.value, isNull);
     });
 
-    test('failed signout throws error and keeps state unchanged', () async {
-      // Set initial state to mockUser
-      when(() => mockGoTrueClient.currentUser).thenReturn(mockUser);
-      container = ProviderContainer(
-        overrides: [
-          supabaseClientProvider.overrideWithValue(mockSupabaseClient),
-        ],
-      );
-
-      // Verify initial state
-      expect(container.read(authProvider), mockUser);
-
+    test('updates state with error on failed sign out', () async {
       when(() => mockGoTrueClient.signOut())
-          .thenThrow(const AuthException('Signout failed'));
-
-      await expectLater(
-        container.read(authProvider.notifier).signOut(),
-        throwsA(isA<AuthException>()),
-      );
-
-      // State should remain unchanged
-      expect(container.read(authProvider), mockUser);
+          .thenThrow(Exception('Sign out failed'));
+      await container.read(authControllerProvider.notifier).signOut();
+      final state = container.read(authControllerProvider);
+      expect(state, isA<AsyncError<User?>>());
+      expect(state.error, isA<Exception>());
     });
   });
 }

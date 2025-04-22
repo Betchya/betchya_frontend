@@ -14,7 +14,6 @@ class LoginScreen extends ConsumerStatefulWidget {
 class _LoginScreenState extends ConsumerState<LoginScreen> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
-  bool _isLoading = false;
   final bool _obscurePassword = true;
   bool _rememberMe = false;
 
@@ -22,29 +21,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     if (_emailController.text.isEmpty || _passwordController.text.isEmpty) {
       return;
     }
-
-    setState(() {
-      _isLoading = true;
-    });
-
-    try {
-      await ref.read(authControllerProvider.notifier).signIn(
-            email: _emailController.text,
-            password: _passwordController.text,
-          );
-    } catch (e) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(e.toString())),
+    await ref.read(authControllerProvider.notifier).signIn(
+          email: _emailController.text,
+          password: _passwordController.text,
         );
-      }
-    } finally {
-      if (mounted) {
-        setState(() {
-          _isLoading = false;
-        });
-      }
-    }
   }
 
   @override
@@ -56,6 +36,10 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final authState = ref.watch(authControllerProvider);
+    final isLoading = authState.isLoading;
+    final error = authState.hasError ? authState.error : null;
+
     return Scaffold(
       backgroundColor: const Color(0xFF22124B),
       body: SafeArea(
@@ -74,18 +58,26 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
                   );
                 }),
                 const SizedBox(height: 32),
+                if (error != null)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: 16),
+                    child: Text(
+                      error.toString(),
+                      style: const TextStyle(color: Colors.red),
+                    ),
+                  ),
                 _LoginForm(
                   emailController: _emailController,
                   passwordController: _passwordController,
                   obscurePassword: _obscurePassword,
                   rememberMe: _rememberMe,
-                  isLoading: _isLoading,
+                  isLoading: isLoading,
                   onRememberMeChanged: (val) {
                     setState(() {
                       _rememberMe = val ?? false;
                     });
                   },
-                  onSignIn: _isLoading ? null : _signIn,
+                  onSignIn: isLoading ? null : _signIn,
                 ),
                 const SizedBox(height: 16),
                 const _ForgotPasswordRow(),
