@@ -17,7 +17,7 @@ class App extends ConsumerWidget {
         home: Scaffold(body: Center(child: CircularProgressIndicator())),
       ),
       error: (err, stack) => MaterialApp(
-        home: Scaffold(body: Center(child: Text('Error: \\${err.toString()}'))),
+        home: Scaffold(body: Center(child: Text('Error: $err'))),
       ),
       data: (user) => MaterialApp(
         theme: ThemeData(

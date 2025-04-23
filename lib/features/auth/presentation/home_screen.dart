@@ -14,7 +14,7 @@ class HomeScreen extends ConsumerWidget {
         body: Center(child: CircularProgressIndicator()),
       ),
       error: (err, stack) => Scaffold(
-        body: Center(child: Text('Error: \\${err.toString()}')),
+        body: Center(child: Text('Error: $err')),
       ),
       data: (user) => Scaffold(
         appBar: AppBar(
@@ -32,7 +32,7 @@ class HomeScreen extends ConsumerWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Text('Welcome, \\${user?.email ?? 'User'}!'),
+              Text('Welcome, ${user?.email ?? 'User'}!'),
               const SizedBox(height: 16),
               const Text('You are now logged in.'),
             ],
