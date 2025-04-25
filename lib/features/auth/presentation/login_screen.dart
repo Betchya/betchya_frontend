@@ -62,7 +62,9 @@ class LoginScreen extends ConsumerWidget {
                       borderSide: BorderSide.none,
                     ),
                     contentPadding: const EdgeInsets.symmetric(
-                        vertical: 16, horizontal: 16),
+                      vertical: 16,
+                      horizontal: 16,
+                    ),
                   ),
                 ),
                 const SizedBox(height: 12),
@@ -80,7 +82,9 @@ class LoginScreen extends ConsumerWidget {
                       borderSide: BorderSide.none,
                     ),
                     contentPadding: const EdgeInsets.symmetric(
-                        vertical: 16, horizontal: 16),
+                      vertical: 16,
+                      horizontal: 16,
+                    ),
                   ),
                 ),
                 const SizedBox(height: 8),
@@ -212,9 +216,19 @@ class _SocialLoginRow extends StatelessWidget {
             // TODO: Implement Google sign-in
           },
         ),
-        // Add additional social login buttons here if needed
+        IconButton(
+          icon: SvgPicture.asset('assets/icons/apple.svg', height: 32),
+          onPressed: () {
+            // TODO: Implement Apple sign-in
+          },
+        ),
+        IconButton(
+          icon: SvgPicture.asset('assets/icons/facebook.svg', height: 32),
+          onPressed: () {
+            // TODO: Implement Facebook sign-in
+          },
+        ),
       ],
     );
   }
 }
-
