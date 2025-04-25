@@ -6,7 +6,7 @@ class AuthRepository {
   final SupabaseClient supabaseClient;
 
   Future<User?> signUp(
-      {required String email, required String password}) async {
+      {required String email, required String password,}) async {
     final response = await supabaseClient.auth.signUp(
       email: email,
       password: password,
@@ -15,7 +15,7 @@ class AuthRepository {
   }
 
   Future<User?> signIn(
-      {required String email, required String password}) async {
+      {required String email, required String password,}) async {
     final response = await supabaseClient.auth.signInWithPassword(
       email: email,
       password: password,

@@ -56,10 +56,12 @@ void main() {
     test('updates state with user on successful signup', () async {
       final mockAuthResponse = MockAuthResponse();
       when(() => mockAuthResponse.user).thenReturn(mockUser);
-      when(() => mockGoTrueClient.signUp(
-            email: any(named: 'email'),
-            password: any(named: 'password'),
-          )).thenAnswer((_) async => mockAuthResponse);
+      when(
+        () => mockGoTrueClient.signUp(
+          email: any(named: 'email'),
+          password: any(named: 'password'),
+        ),
+      ).thenAnswer((_) async => mockAuthResponse);
 
       await container.read(authControllerProvider.notifier).signUp(
             email: 'test@test.com',
@@ -72,10 +74,12 @@ void main() {
     });
 
     test('updates state with error on failed signup', () async {
-      when(() => mockGoTrueClient.signUp(
-            email: any(named: 'email'),
-            password: any(named: 'password'),
-          )).thenThrow(Exception('Signup failed'));
+      when(
+        () => mockGoTrueClient.signUp(
+          email: any(named: 'email'),
+          password: any(named: 'password'),
+        ),
+      ).thenThrow(Exception('Signup failed'));
 
       await container.read(authControllerProvider.notifier).signUp(
             email: 'fail@test.com',
@@ -92,10 +96,12 @@ void main() {
     test('updates state with user on successful sign in', () async {
       final mockAuthResponse = MockAuthResponse();
       when(() => mockAuthResponse.user).thenReturn(mockUser);
-      when(() => mockGoTrueClient.signInWithPassword(
-            email: any(named: 'email'),
-            password: any(named: 'password'),
-          )).thenAnswer((_) async => mockAuthResponse);
+      when(
+        () => mockGoTrueClient.signInWithPassword(
+          email: any(named: 'email'),
+          password: any(named: 'password'),
+        ),
+      ).thenAnswer((_) async => mockAuthResponse);
 
       await container.read(authControllerProvider.notifier).signIn(
             email: 'test@test.com',
@@ -108,10 +114,12 @@ void main() {
     });
 
     test('updates state with error on failed sign in', () async {
-      when(() => mockGoTrueClient.signInWithPassword(
-            email: any(named: 'email'),
-            password: any(named: 'password'),
-          )).thenThrow(Exception('Sign in failed'));
+      when(
+        () => mockGoTrueClient.signInWithPassword(
+          email: any(named: 'email'),
+          password: any(named: 'password'),
+        ),
+      ).thenThrow(Exception('Sign in failed'));
 
       await container.read(authControllerProvider.notifier).signIn(
             email: 'fail@test.com',
@@ -126,7 +134,7 @@ void main() {
 
   group('signOut', () {
     test('updates state to null after sign out', () async {
-      when(() => mockGoTrueClient.signOut()).thenAnswer((_) async => null);
+      when(() => mockGoTrueClient.signOut()).thenAnswer((_) async {});
       await container.read(authControllerProvider.notifier).signOut();
       final state = container.read(authControllerProvider);
       expect(state, isA<AsyncData<User?>>());

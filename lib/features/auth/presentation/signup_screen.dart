@@ -1,95 +1,21 @@
-import 'package:betchya_frontend/features/auth/models/dob_input.dart';
-import 'package:betchya_frontend/features/auth/models/email_input.dart';
-import 'package:betchya_frontend/features/auth/models/password_input.dart';
+import 'package:betchya_frontend/features/auth/controllers/sign_up_form_controller.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:formz/formz.dart';
 
-class SignUpFormState {
-  SignUpFormState({
-    this.email = const EmailInput.pure(),
-    this.password = const PasswordInput.pure(),
-    this.dob = const DOBInput.pure(),
-    this.status = FormzStatus.pure,
-  });
-
-  final EmailInput email;
-  final PasswordInput password;
-  final DOBInput dob;
-  final FormzStatus status;
-
-  SignUpFormState copyWith({
-    EmailInput? email,
-    PasswordInput? password,
-    DOBInput? dob,
-    FormzStatus? status,
-  }) {
-    return SignUpFormState(
-      email: email ?? this.email,
-      password: password ?? this.password,
-      dob: dob ?? this.dob,
-      status: status ?? this.status,
-    );
-  }
-}
-
-class SignUpScreen extends StatefulWidget {
+class SignUpScreen extends ConsumerStatefulWidget {
   const SignUpScreen({super.key});
 
   @override
-  State<SignUpScreen> createState() => _SignUpScreenState();
+  ConsumerState<SignUpScreen> createState() => _SignUpScreenState();
 }
 
-class _SignUpScreenState extends State<SignUpScreen> {
-  final _emailController = TextEditingController();
-  final _dobController = TextEditingController();
-  final _passwordController = TextEditingController();
-
-  late SignUpFormState formState;
-
-  @override
-  void initState() {
-    super.initState();
-    formState = SignUpFormState();
-    _emailController.addListener(() {
-      final email = EmailInput.dirty(_emailController.text);
-      setState(() {
-        formState = formState.copyWith(
-          email: email,
-          status: Formz.validate([email, formState.password, formState.dob]),
-        );
-      });
-    });
-    _dobController.addListener(() {
-      final dob = DOBInput.dirty(_dobController.text);
-      setState(() {
-        formState = formState.copyWith(
-          dob: dob,
-          status: Formz.validate([formState.email, formState.password, dob]),
-        );
-      });
-    });
-    _passwordController.addListener(() {
-      final password = PasswordInput.dirty(_passwordController.text);
-      setState(() {
-        formState = formState.copyWith(
-          password: password,
-          status: Formz.validate([formState.email, password, formState.dob]),
-        );
-      });
-    });
-  }
-
-  @override
-  void dispose() {
-    _emailController.dispose();
-    _dobController.dispose();
-    _passwordController.dispose();
-    super.dispose();
-  }
-
+class _SignUpScreenState extends ConsumerState<SignUpScreen> {
   @override
   Widget build(BuildContext context) {
+    final formState = ref.watch(signUpFormControllerProvider);
+    final formController = ref.read(signUpFormControllerProvider.notifier);
     return Scaffold(
       backgroundColor: const Color(0xFF22124B),
       appBar: AppBar(
@@ -125,12 +51,13 @@ class _SignUpScreenState extends State<SignUpScreen> {
             ),
             const SizedBox(height: 16),
             TextField(
-              controller: _emailController,
+              onChanged: formController.emailChanged,
               keyboardType: TextInputType.emailAddress,
               decoration: InputDecoration(
                 filled: true,
                 fillColor: Colors.white,
                 hintText: 'Email',
+                errorText: formState.email.invalid ? 'Invalid email' : null,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(10),
                   borderSide: BorderSide.none,
@@ -141,12 +68,13 @@ class _SignUpScreenState extends State<SignUpScreen> {
             ),
             const SizedBox(height: 12),
             TextField(
-              controller: _dobController,
+              onChanged: formController.dobChanged,
               keyboardType: TextInputType.datetime,
               decoration: InputDecoration(
                 filled: true,
                 fillColor: Colors.white,
                 hintText: 'Date of Birth (mm/dd/yyyy)',
+                errorText: formState.dob.invalid ? 'Invalid date of birth' : null,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(10),
                   borderSide: BorderSide.none,
@@ -157,12 +85,13 @@ class _SignUpScreenState extends State<SignUpScreen> {
             ),
             const SizedBox(height: 12),
             TextField(
-              controller: _passwordController,
+              onChanged: formController.passwordChanged,
               obscureText: true,
               decoration: InputDecoration(
                 filled: true,
                 fillColor: Colors.white,
                 hintText: 'Password',
+                errorText: formState.password.invalid ? 'Invalid password' : null,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(10),
                   borderSide: BorderSide.none,
@@ -180,12 +109,19 @@ class _SignUpScreenState extends State<SignUpScreen> {
               ),
             ),
             const SizedBox(height: 24),
+            if (formState.error != null) ...[
+              Text(
+                formState.error!,
+                style: const TextStyle(color: Colors.red),
+              ),
+              const SizedBox(height: 8),
+            ],
             SizedBox(
               width: double.infinity,
               height: 56,
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: formState.status.isValidated
+                  backgroundColor: formState.status == FormzStatus.valid && !formState.isSubmitting
                       ? const Color(0xFF1DD6C1)
                       : const Color(0x801DD6C1),
                   disabledBackgroundColor: const Color(0x801DD6C1),
@@ -193,19 +129,19 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     borderRadius: BorderRadius.circular(8),
                   ),
                 ),
-                onPressed: formState.status.isValidated
-                    ? () {
-                        // TODO: Implement sign up logic
-                      }
+                onPressed: formState.status == FormzStatus.valid && !formState.isSubmitting
+                    ? formController.submit
                     : null,
-                child: const Text(
-                  'Next',
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 18,
-                  ),
-                ),
+                child: formState.isSubmitting
+                    ? const CircularProgressIndicator(color: Colors.white)
+                    : const Text(
+                        'Next',
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 18,
+                        ),
+                      ),
               ),
             ),
             const SizedBox(height: 32),

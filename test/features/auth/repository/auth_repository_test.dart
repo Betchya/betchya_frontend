@@ -33,7 +33,7 @@ void main() {
       when(() => mockGoTrueClient.signUp(
         email: any(named: 'email'),
         password: any(named: 'password'),
-      )).thenAnswer((_) async => mockResponse);
+      ),).thenAnswer((_) async => mockResponse);
 
       final result = await authRepository.signUp(email: 'test@test.com', password: 'password');
       expect(result, mockUser);
@@ -46,14 +46,14 @@ void main() {
       when(() => mockGoTrueClient.signInWithPassword(
         email: any(named: 'email'),
         password: any(named: 'password'),
-      )).thenAnswer((_) async => mockResponse);
+      ),).thenAnswer((_) async => mockResponse);
 
       final result = await authRepository.signIn(email: 'test@test.com', password: 'password');
       expect(result, mockUser);
     });
 
     test('signOut calls supabase signOut', () async {
-      when(() => mockGoTrueClient.signOut()).thenAnswer((_) async => null);
+      when(() => mockGoTrueClient.signOut()).thenAnswer((_) async {});
       await authRepository.signOut();
       verify(() => mockGoTrueClient.signOut()).called(1);
     });
