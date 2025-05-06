@@ -1,19 +1,12 @@
+import 'package:betchya_frontend/features/auth/models/dob_input.dart';
+import 'package:betchya_frontend/features/auth/models/email_input.dart';
+import 'package:betchya_frontend/features/auth/models/password_input.dart';
 import 'package:betchya_frontend/features/auth/providers/auth_provider.dart';
+import 'package:betchya_frontend/features/auth/repository/auth_repository.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:formz/formz.dart';
-import '../models/email_input.dart';
-import '../models/password_input.dart';
-import '../models/dob_input.dart';
-import '../repository/auth_repository.dart';
 
 class SignUpFormState {
-  final EmailInput email;
-  final PasswordInput password;
-  final DOBInput dob;
-  final FormzStatus status;
-  final String? error;
-  final bool isSubmitting;
-
   const SignUpFormState({
     this.email = const EmailInput.pure(),
     this.password = const PasswordInput.pure(),
@@ -22,6 +15,12 @@ class SignUpFormState {
     this.error,
     this.isSubmitting = false,
   });
+  final EmailInput email;
+  final PasswordInput password;
+  final DOBInput dob;
+  final FormzStatus status;
+  final String? error;
+  final bool isSubmitting;
 
   SignUpFormState copyWith({
     EmailInput? email,
@@ -43,16 +42,14 @@ class SignUpFormState {
 }
 
 class SignUpFormController extends StateNotifier<SignUpFormState> {
-  final AuthRepository _authRepository;
-
   SignUpFormController(this._authRepository) : super(const SignUpFormState());
+  final AuthRepository _authRepository;
 
   void emailChanged(String value) {
     final email = EmailInput.dirty(value);
     state = state.copyWith(
       email: email,
       status: Formz.validate([email, state.password, state.dob]),
-      error: null,
     );
   }
 
@@ -61,7 +58,6 @@ class SignUpFormController extends StateNotifier<SignUpFormState> {
     state = state.copyWith(
       password: password,
       status: Formz.validate([state.email, password, state.dob]),
-      error: null,
     );
   }
 
@@ -70,26 +66,27 @@ class SignUpFormController extends StateNotifier<SignUpFormState> {
     state = state.copyWith(
       dob: dob,
       status: Formz.validate([state.email, state.password, dob]),
-      error: null,
     );
   }
 
   Future<void> submit() async {
     if (state.status != FormzStatus.valid) return;
-    state = state.copyWith(isSubmitting: true, error: null);
+    state = state.copyWith(isSubmitting: true);
     try {
       await _authRepository.signUp(
         email: state.email.value,
         password: state.password.value,
       );
-      state = state.copyWith(isSubmitting: false, error: null);
+      state = state.copyWith(isSubmitting: false);
     } catch (e) {
       state = state.copyWith(isSubmitting: false, error: e.toString());
     }
   }
 }
 
-final signUpFormControllerProvider = StateNotifierProvider.autoDispose<SignUpFormController, SignUpFormState>((ref) {
+final signUpFormControllerProvider =
+    StateNotifierProvider.autoDispose<SignUpFormController, SignUpFormState>(
+        (ref) {
   final authRepository = ref.read(authRepositoryProvider);
   return SignUpFormController(authRepository);
 });

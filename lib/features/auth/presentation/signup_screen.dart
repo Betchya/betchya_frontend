@@ -74,7 +74,8 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                 filled: true,
                 fillColor: Colors.white,
                 hintText: 'Date of Birth (mm/dd/yyyy)',
-                errorText: formState.dob.invalid ? 'Invalid date of birth' : null,
+                errorText:
+                    formState.dob.invalid ? 'Invalid date of birth' : null,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(10),
                   borderSide: BorderSide.none,
@@ -91,7 +92,8 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                 filled: true,
                 fillColor: Colors.white,
                 hintText: 'Password',
-                errorText: formState.password.invalid ? 'Invalid password' : null,
+                errorText:
+                    formState.password.invalid ? 'Invalid password' : null,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(10),
                   borderSide: BorderSide.none,
@@ -102,7 +104,8 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
             ),
             const SizedBox(height: 8),
             const Text(
-              '8 or more characters\nAt least 1 capital letter, number & special character',
+              '8 or more characters\nAt least 1 capital letter, number & '
+              'special character',
               style: TextStyle(
                 color: Colors.white70,
                 fontSize: 12,
@@ -121,7 +124,8 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
               height: 56,
               child: ElevatedButton(
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: formState.status == FormzStatus.valid && !formState.isSubmitting
+                  backgroundColor: formState.status == FormzStatus.valid &&
+                          !formState.isSubmitting
                       ? const Color(0xFF1DD6C1)
                       : const Color(0x801DD6C1),
                   disabledBackgroundColor: const Color(0x801DD6C1),
@@ -129,7 +133,8 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                     borderRadius: BorderRadius.circular(8),
                   ),
                 ),
-                onPressed: formState.status == FormzStatus.valid && !formState.isSubmitting
+                onPressed: formState.status == FormzStatus.valid &&
+                        !formState.isSubmitting
                     ? formController.submit
                     : null,
                 child: formState.isSubmitting

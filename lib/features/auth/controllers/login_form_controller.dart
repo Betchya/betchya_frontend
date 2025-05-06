@@ -73,7 +73,9 @@ class LoginFormController extends StateNotifier<LoginFormState> {
   }
 }
 
-final loginFormControllerProvider = StateNotifierProvider.autoDispose<LoginFormController, LoginFormState>((ref) {
+final loginFormControllerProvider =
+    StateNotifierProvider.autoDispose<LoginFormController, LoginFormState>(
+        (ref) {
   final authRepository = ref.read(authRepositoryProvider);
   return LoginFormController(authRepository);
 });
