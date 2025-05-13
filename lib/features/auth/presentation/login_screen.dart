@@ -10,8 +10,6 @@ class LoginScreen extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final formState = ref.watch(loginFormControllerProvider);
-    final formController = ref.read(loginFormControllerProvider.notifier);
     return Scaffold(
       backgroundColor: const Color(0xFF22124B),
       body: SafeArea(
@@ -44,19 +42,19 @@ class _LoginScreenContentState extends ConsumerState<_LoginScreenContent> {
         const SizedBox(height: 40),
         // Logo
         SvgPicture.asset(
-          'assets/logo/betchya_logo.svg',
+          'assets/images/betchya_logo_white.svg',
           height: 120,
         ),
         const SizedBox(height: 48),
-        // Player's Club #
+        // Email
         TextField(
           onChanged: formController.emailChanged,
-          keyboardType: TextInputType.text,
+          keyboardType: TextInputType.emailAddress,
           decoration: InputDecoration(
             filled: true,
             fillColor: Colors.white,
-            hintText: "Player's Club #",
-            errorText: formState.email.invalid ? 'Invalid Club #' : null,
+            hintText: 'Email',
+            errorText: formState.email.invalid ? 'Invalid email' : null,
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(10),
               borderSide: BorderSide.none,
