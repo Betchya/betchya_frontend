@@ -21,6 +21,7 @@ class HomeScreen extends ConsumerWidget {
           title: const Text('Home'),
           actions: [
             IconButton(
+              key: const Key('home_logout_button'),
               icon: const Icon(Icons.logout),
               onPressed: () {
                 ref.read(authControllerProvider.notifier).signOut();
@@ -30,6 +31,7 @@ class HomeScreen extends ConsumerWidget {
         ),
         body: Center(
           child: Column(
+            key: const Key('home_screen'),
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text('Welcome, ${user?.email ?? 'User'}!'),

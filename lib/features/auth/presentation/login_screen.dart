@@ -26,7 +26,8 @@ class LoginScreen extends ConsumerWidget {
 
 class _LoginScreenContent extends ConsumerStatefulWidget {
   @override
-  ConsumerState<_LoginScreenContent> createState() => _LoginScreenContentState();
+  ConsumerState<_LoginScreenContent> createState() =>
+      _LoginScreenContentState();
 }
 
 class _LoginScreenContentState extends ConsumerState<_LoginScreenContent> {
@@ -48,6 +49,7 @@ class _LoginScreenContentState extends ConsumerState<_LoginScreenContent> {
         const SizedBox(height: 48),
         // Email
         TextField(
+          key: const Key('login_email_field'),
           onChanged: formController.emailChanged,
           keyboardType: TextInputType.emailAddress,
           decoration: InputDecoration(
@@ -68,6 +70,7 @@ class _LoginScreenContentState extends ConsumerState<_LoginScreenContent> {
         const SizedBox(height: 12),
         // Password with show/hide
         TextField(
+          key: const Key('login_password_field'),
           onChanged: formController.passwordChanged,
           obscureText: _obscurePassword,
           decoration: InputDecoration(
@@ -102,8 +105,10 @@ class _LoginScreenContentState extends ConsumerState<_LoginScreenContent> {
           width: double.infinity,
           height: 56,
           child: ElevatedButton(
+            key: const Key('login_button'),
             style: ElevatedButton.styleFrom(
-              backgroundColor: formState.status == FormzStatus.valid && !formState.isSubmitting
+              backgroundColor: formState.status == FormzStatus.valid &&
+                      !formState.isSubmitting
                   ? const Color(0xFF1DD6C1)
                   : const Color(0x801DD6C1),
               disabledBackgroundColor: const Color(0x801DD6C1),
@@ -111,9 +116,10 @@ class _LoginScreenContentState extends ConsumerState<_LoginScreenContent> {
                 borderRadius: BorderRadius.circular(8),
               ),
             ),
-            onPressed: formState.status == FormzStatus.valid && !formState.isSubmitting
-                ? formController.submit
-                : null,
+            onPressed:
+                formState.status == FormzStatus.valid && !formState.isSubmitting
+                    ? formController.submit
+                    : null,
             child: formState.isSubmitting
                 ? const CircularProgressIndicator(color: Colors.white)
                 : const Text(
@@ -137,6 +143,7 @@ class _LoginScreenContentState extends ConsumerState<_LoginScreenContent> {
         const SizedBox(height: 32),
         // Create Account
         GestureDetector(
+          key: const Key('login_create_account'),
           onTap: () {
             Navigator.of(context).push(
               MaterialPageRoute<Widget>(
@@ -157,6 +164,7 @@ class _LoginScreenContentState extends ConsumerState<_LoginScreenContent> {
         const SizedBox(height: 12),
         // Forgot Login Info
         GestureDetector(
+          key: const Key('login_forgot_info'),
           onTap: () {
             // TODO: Implement forgot login info navigation
           },
@@ -169,107 +177,6 @@ class _LoginScreenContentState extends ConsumerState<_LoginScreenContent> {
             ),
             textAlign: TextAlign.center,
           ),
-        ),
-      ],
-    );
-  }
-}
-
-// (Remove _WelcomeHeader, _SocialLoginRow, etc. if not used)
-
-class _WelcomeHeader extends StatelessWidget {
-  const _WelcomeHeader({required this.onRegisterTap});
-
-  final VoidCallback onRegisterTap;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text(
-          'Welcome!',
-          style: TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
-            fontSize: 32,
-          ),
-        ),
-        const SizedBox(height: 8),
-        Row(
-          children: [
-            const Text(
-              'Need an account? ',
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 16,
-              ),
-            ),
-            GestureDetector(
-              onTap: onRegisterTap,
-              child: const Padding(
-                padding: EdgeInsets.only(bottom: 2),
-                child: Text(
-                  'Register',
-                  style: TextStyle(
-                    color: Color(0xFF1DD6C1),
-                    fontWeight: FontWeight.bold,
-                    fontSize: 16,
-                    decoration: TextDecoration.underline,
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
-      ],
-    );
-  }
-}
-
-class _ForgotPasswordRow extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Align(
-      alignment: Alignment.centerRight,
-      child: TextButton(
-        onPressed: () {
-          // TODO: Implement forgot password navigation
-        },
-        child: const Text(
-          'Forgot password?',
-          style: TextStyle(color: Color(0xFF1DD6C1)),
-        ),
-      ),
-    );
-  }
-}
-
-class _SocialLoginRow extends StatelessWidget {
-  const _SocialLoginRow();
-
-  @override
-  Widget build(BuildContext context) {
-    return Row(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        IconButton(
-          icon: SvgPicture.asset('assets/icons/google.svg', height: 32),
-          onPressed: () {
-            // TODO: Implement Google sign-in
-          },
-        ),
-        IconButton(
-          icon: SvgPicture.asset('assets/icons/apple.svg', height: 32),
-          onPressed: () {
-            // TODO: Implement Apple sign-in
-          },
-        ),
-        IconButton(
-          icon: SvgPicture.asset('assets/icons/facebook.svg', height: 32),
-          onPressed: () {
-            // TODO: Implement Facebook sign-in
-          },
         ),
       ],
     );

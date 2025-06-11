@@ -51,6 +51,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
             ),
             const SizedBox(height: 16),
             TextField(
+              key: const Key('signup_email_field'),
               onChanged: formController.emailChanged,
               keyboardType: TextInputType.emailAddress,
               decoration: InputDecoration(
@@ -68,6 +69,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
             ),
             const SizedBox(height: 12),
             TextField(
+              key: const Key('signup_dob_field'),
               onChanged: formController.dobChanged,
               keyboardType: TextInputType.datetime,
               decoration: InputDecoration(
@@ -86,6 +88,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
             ),
             const SizedBox(height: 12),
             TextField(
+              key: const Key('signup_password_field'),
               onChanged: formController.passwordChanged,
               obscureText: true,
               decoration: InputDecoration(
@@ -120,6 +123,7 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
               const SizedBox(height: 8),
             ],
             SizedBox(
+              key: const Key('signup_next_button'),
               width: double.infinity,
               height: 56,
               child: ElevatedButton(
