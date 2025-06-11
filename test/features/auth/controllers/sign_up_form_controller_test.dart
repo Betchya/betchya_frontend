@@ -45,13 +45,53 @@ void main() {
 
     group('passwordChanged', () {
       test('updates password and validates form', () {
-        // Act
         controller.passwordChanged(testPassword);
-
-        // Assert
         expect(controller.state.password.value, testPassword);
         expect(controller.state.status, FormzStatus.invalid);
       });
+
+      test('changing password re-validates confirmPassword', () {
+        // Set confirmPassword to match old password
+        controller
+          ..passwordChanged('OldPassword1!')
+          ..confirmPasswordChanged('OldPassword1!');
+        expect(controller.state.confirmPassword.error, isNull);
+        // Change password, confirmPassword is now out of sync
+        controller.passwordChanged('NewPassword2!');
+        expect(controller.state.confirmPassword.error, isNotNull);
+        // Now update confirmPassword to match
+        controller.confirmPasswordChanged('NewPassword2!');
+        expect(controller.state.confirmPassword.error, isNull);
+      });
+    });
+
+    group('confirmPasswordChanged', () {
+      test('sets error if confirm password does not match', () {
+        controller
+          ..passwordChanged('Password1!')
+          ..confirmPasswordChanged('WrongPassword');
+        expect(controller.state.confirmPassword.error, isNotNull);
+      });
+      test('no error if confirm password matches', () {
+        controller
+          ..passwordChanged('Password1!')
+          ..confirmPasswordChanged('Password1!');
+        expect(controller.state.confirmPassword.error, isNull);
+      });
+    });
+
+    test(
+        'form is valid only if all fields including confirm password are '
+        'valid and match', () {
+      controller
+        ..emailChanged('valid@email.com')
+        ..passwordChanged('Valid123!')
+        ..confirmPasswordChanged('Valid123!')
+        ..dobChanged('01/01/2000');
+      expect(controller.state.status, FormzStatus.valid);
+      // Now break confirm password
+      controller.confirmPasswordChanged('WrongPassword');
+      expect(controller.state.status, isNot(FormzStatus.valid));
     });
 
     group('dobChanged', () {
