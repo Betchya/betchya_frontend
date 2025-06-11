@@ -1,3 +1,4 @@
+import 'package:betchya_frontend/features/auth/models/confirm_password_input.dart';
 import 'package:betchya_frontend/features/auth/models/dob_input.dart';
 import 'package:betchya_frontend/features/auth/models/email_input.dart';
 import 'package:betchya_frontend/features/auth/models/password_input.dart';
@@ -9,6 +10,7 @@ class SignUpFormState {
   const SignUpFormState({
     this.email = const EmailInput.pure(),
     this.password = const PasswordInput.pure(),
+    this.confirmPassword = const ConfirmPasswordInput.pure(),
     this.dob = const DOBInput.pure(),
     this.status = FormzStatus.pure,
     this.error,
@@ -16,6 +18,7 @@ class SignUpFormState {
   });
   final EmailInput email;
   final PasswordInput password;
+  final ConfirmPasswordInput confirmPassword;
   final DOBInput dob;
   final FormzStatus status;
   final String? error;
@@ -24,6 +27,7 @@ class SignUpFormState {
   SignUpFormState copyWith({
     EmailInput? email,
     PasswordInput? password,
+    ConfirmPasswordInput? confirmPassword,
     DOBInput? dob,
     FormzStatus? status,
     String? error,
@@ -32,6 +36,7 @@ class SignUpFormState {
     return SignUpFormState(
       email: email ?? this.email,
       password: password ?? this.password,
+      confirmPassword: confirmPassword ?? this.confirmPassword,
       dob: dob ?? this.dob,
       status: status ?? this.status,
       error: error,
@@ -54,9 +59,35 @@ class SignUpFormController extends StateNotifier<SignUpFormState> {
 
   void passwordChanged(String value) {
     final password = PasswordInput.dirty(value);
+    final confirmPassword = ConfirmPasswordInput.dirty(
+      password: password.value,
+      value: state.confirmPassword.value,
+    );
     state = state.copyWith(
       password: password,
-      status: Formz.validate([state.email, password, state.dob]),
+      confirmPassword: confirmPassword,
+      status: Formz.validate([
+        state.email,
+        password,
+        confirmPassword,
+        state.dob,
+      ]),
+    );
+  }
+
+  void confirmPasswordChanged(String value) {
+    final confirmPassword = ConfirmPasswordInput.dirty(
+      password: state.password.value,
+      value: value,
+    );
+    state = state.copyWith(
+      confirmPassword: confirmPassword,
+      status: Formz.validate([
+        state.email,
+        state.password,
+        confirmPassword,
+        state.dob,
+      ]),
     );
   }
 
@@ -64,7 +95,12 @@ class SignUpFormController extends StateNotifier<SignUpFormState> {
     final dob = DOBInput.dirty(value);
     state = state.copyWith(
       dob: dob,
-      status: Formz.validate([state.email, state.password, dob]),
+      status: Formz.validate([
+        state.email,
+        state.password,
+        state.confirmPassword,
+        dob,
+      ]),
     );
   }
 

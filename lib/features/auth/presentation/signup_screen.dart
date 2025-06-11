@@ -105,6 +105,26 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                     const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
               ),
             ),
+            const SizedBox(height: 12),
+            TextField(
+              key: const Key('signup_confirm_password_field'),
+              onChanged: formController.confirmPasswordChanged,
+              obscureText: true,
+              decoration: InputDecoration(
+                filled: true,
+                fillColor: Colors.white,
+                hintText: 'Confirm Password',
+                errorText: formState.confirmPassword.invalid
+                    ? 'Passwords do not match'
+                    : null,
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                  borderSide: BorderSide.none,
+                ),
+                contentPadding:
+                    const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+              ),
+            ),
             const SizedBox(height: 8),
             const Text(
               '8 or more characters\nAt least 1 capital letter, number & '
@@ -123,10 +143,10 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
               const SizedBox(height: 8),
             ],
             SizedBox(
-              key: const Key('signup_next_button'),
               width: double.infinity,
               height: 56,
               child: ElevatedButton(
+                key: const Key('signup_button'),
                 style: ElevatedButton.styleFrom(
                   backgroundColor: formState.status == FormzStatus.valid &&
                           !formState.isSubmitting
