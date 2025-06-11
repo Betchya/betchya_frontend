@@ -57,7 +57,8 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                 filled: true,
                 fillColor: Colors.white,
                 hintText: 'Full Name',
-                errorText: formState.fullName?.invalid == true ? 'Invalid name' : null,
+                errorText:
+                    formState.fullName.invalid == true ? 'Invalid name' : null,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(10),
                   borderSide: BorderSide.none,
@@ -137,7 +138,8 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
               children: [
                 Checkbox(
                   value: formState.consent,
-                  onChanged: formController.consentChanged,
+                  onChanged: (value) =>
+                      formController.consentChanged(value: value),
                   activeColor: const Color(0xFF1DD6C1),
                 ),
                 const Expanded(
@@ -161,6 +163,12 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
               height: 56,
               child: ElevatedButton(
                 key: const Key('signup_button'),
+                onPressed: formState.isSubmitting
+                    ? null
+                    : () {
+                        formController..validateAll()
+                        ..submit();
+                      },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: formState.status == FormzStatus.valid &&
                           !formState.isSubmitting
@@ -171,10 +179,6 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                     borderRadius: BorderRadius.circular(8),
                   ),
                 ),
-                onPressed: formState.status == FormzStatus.valid &&
-                        !formState.isSubmitting
-                    ? formController.submit
-                    : null,
                 child: formState.isSubmitting
                     ? const CircularProgressIndicator(color: Colors.white)
                     : const Text(

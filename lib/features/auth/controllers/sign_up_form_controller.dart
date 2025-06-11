@@ -110,11 +110,31 @@ class SignUpFormController extends StateNotifier<SignUpFormState> {
       ]),
     );
   }
-
-  // Removed dobChanged
-
-  void consentChanged(bool? value) {
+  
+  void consentChanged({bool? value}) {
     state = state.copyWith(consent: value ?? true);
+  }
+
+  void validateAll() {
+    final fullName = FullNameInput.dirty(state.fullName.value);
+    final email = EmailInput.dirty(state.email.value);
+    final password = PasswordInput.dirty(state.password.value);
+    final confirmPassword = ConfirmPasswordInput.dirty(
+      password: password.value,
+      value: state.confirmPassword.value,
+    );
+    state = state.copyWith(
+      fullName: fullName,
+      email: email,
+      password: password,
+      confirmPassword: confirmPassword,
+      status: Formz.validate([
+        fullName,
+        email,
+        password,
+        confirmPassword,
+      ]),
+    );
   }
 
   Future<void> submit() async {
