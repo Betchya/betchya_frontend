@@ -1,6 +1,7 @@
 import 'package:betchya_frontend/features/auth/controllers/sign_up_form_controller.dart';
-import 'package:betchya_frontend/features/auth/models/dob_input.dart';
+import 'package:betchya_frontend/features/auth/models/confirm_password_input.dart';
 import 'package:betchya_frontend/features/auth/models/email_input.dart';
+import 'package:betchya_frontend/features/auth/models/full_name_input.dart';
 import 'package:betchya_frontend/features/auth/models/password_input.dart';
 import 'package:betchya_frontend/features/auth/providers/auth_provider.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -15,7 +16,6 @@ void main() {
 
   const testEmail = 'test@example.com';
   const testPassword = 'Test1234';
-  const testDob = '1990-01-01';
 
   setUp(() {
     mockAuthController = MockAuthController();
@@ -26,7 +26,11 @@ void main() {
     test('initial state is correct', () {
       expect(controller.state.email, const EmailInput.pure());
       expect(controller.state.password, const PasswordInput.pure());
-      expect(controller.state.dob, const DOBInput.pure());
+      expect(controller.state.fullName, const FullNameInput.pure());
+      expect(
+        controller.state.confirmPassword,
+        const ConfirmPasswordInput.pure(),
+      );
       expect(controller.state.status, FormzStatus.pure);
       expect(controller.state.error, isNull);
       expect(controller.state.isSubmitting, isFalse);
@@ -87,20 +91,20 @@ void main() {
         ..emailChanged('valid@email.com')
         ..passwordChanged('Valid123!')
         ..confirmPasswordChanged('Valid123!')
-        ..dobChanged('01/01/2000');
+        ..fullNameChanged('John Doe');
       expect(controller.state.status, FormzStatus.valid);
       // Now break confirm password
       controller.confirmPasswordChanged('WrongPassword');
       expect(controller.state.status, isNot(FormzStatus.valid));
     });
 
-    group('dobChanged', () {
-      test('updates dob and validates form', () {
+    group('fullNameChanged', () {
+      test('updates fullName and validates form', () {
         // Act
-        controller.dobChanged(testDob);
+        controller.fullNameChanged('John Doe');
 
         // Assert
-        expect(controller.state.dob.value, testDob);
+        expect(controller.state.fullName.value, 'John Doe');
         expect(controller.state.status, FormzStatus.invalid);
       });
     });
@@ -133,7 +137,7 @@ void main() {
         controller
           ..emailChanged(testEmail)
           ..passwordChanged(testPassword)
-          ..dobChanged(testDob)
+          ..fullNameChanged('John Doe')
 
           // Force form to be valid by directly setting the status
           // This is needed because our form validation might be too strict
@@ -171,7 +175,7 @@ void main() {
         controller
           ..emailChanged(testEmail)
           ..passwordChanged(testPassword)
-          ..dobChanged(testDob)
+          ..fullNameChanged('John Doe')
 
           // Force form to be valid by directly setting the status
           // This is needed because our form validation might be too strict

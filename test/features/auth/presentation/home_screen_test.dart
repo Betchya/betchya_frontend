@@ -11,7 +11,10 @@ void main() {
     // Clean up after tests if needed
   });
 
-  Future<void> pumpHomeScreen(WidgetTester tester, {List<Override> overrides = const []}) async {
+  Future<void> pumpHomeScreen(
+    WidgetTester tester, {
+    List<Override> overrides = const [],
+  }) async {
     await tester.pumpWidget(
       ProviderScope(
         overrides: overrides,
@@ -20,7 +23,8 @@ void main() {
     );
     await tester.pumpAndSettle();
   }
-  group('HomeScreen UI Tests', () {
+
+  group('HomeScreen', () {
     testWidgets('renders main UI elements', (tester) async {
       // Should verify all main home screen elements are present
     });
@@ -42,4 +46,3 @@ void main() {
     });
   });
 }
-

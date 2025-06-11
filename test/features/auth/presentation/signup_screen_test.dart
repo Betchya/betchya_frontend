@@ -1,6 +1,9 @@
 import 'package:betchya_frontend/features/auth/presentation/signup_screen.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+
+import 'robots/signup_screen_robot.dart';
 
 void main() {
   setUp(() {
@@ -11,25 +14,50 @@ void main() {
     // Clean up after tests if needed
   });
 
-  Future<void> pumpSignupScreen(WidgetTester tester, {List<Override> overrides = const []}) async {
+  Future<void> pumpSignupScreen(
+    WidgetTester tester, {
+    List<Override> overrides = const [],
+  }) async {
     await tester.pumpWidget(
       ProviderScope(
         overrides: overrides,
-        child: const SignUpScreen(),
+        child: const MaterialApp(
+          home: SignUpScreen(),
+        ),
       ),
     );
     await tester.pumpAndSettle();
   }
-  group('SignupScreen UI Tests', () {
+
+  group('SignupScreen', () {
     testWidgets('renders all required input fields', (tester) async {
-      // Should verify all signup fields are present
+      await pumpSignupScreen(tester);
+      final robot = SignUpScreenRobot(tester);
+      await robot.expectFieldsPresent();
     });
 
     testWidgets('shows validation errors for invalid input', (tester) async {
-      // Should show error messages for invalid data
+      await pumpSignupScreen(tester);
+      final robot = SignUpScreenRobot(tester);
+      // Enter invalid full name
+      await robot.enterFullName('');
+      // Enter invalid email
+      await robot.enterEmail('invalid-email');
+      // Enter invalid password (too short, no special char)
+      await robot.enterPassword('123');
+      // Enter non-matching confirm password
+      await robot.enterConfirmPassword('different');
+      // Tap signup to trigger validation
+      await robot.tapSignupButton();
+      // Check for error messages
+      expect(find.text('Invalid name'), findsOneWidget);
+      expect(find.text('Invalid email'), findsOneWidget);
+      expect(find.text('Invalid password'), findsOneWidget);
+      expect(find.text('Passwords do not match'), findsOneWidget);
     });
 
-    testWidgets('enables signup button only when form is valid', (tester) async {
+    testWidgets('enables signup button only when form is valid',
+        (tester) async {
       // Should only enable the signup button when all fields are valid
     });
 

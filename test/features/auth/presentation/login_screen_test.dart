@@ -11,7 +11,10 @@ void main() {
     // Clean up after tests if needed
   });
 
-  Future<void> pumpLoginScreen(WidgetTester tester, {List<Override> overrides = const []}) async {
+  Future<void> pumpLoginScreen(
+    WidgetTester tester, {
+    List<Override> overrides = const [],
+  }) async {
     await tester.pumpWidget(
       ProviderScope(
         overrides: overrides,
@@ -20,7 +23,8 @@ void main() {
     );
     await tester.pumpAndSettle();
   }
-  group('LoginScreen UI Tests', () {
+
+  group('LoginScreen', () {
     testWidgets('renders all required input fields', (tester) async {
       // Should verify all login fields are present
     });

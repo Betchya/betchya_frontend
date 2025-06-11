@@ -1,6 +1,6 @@
 import 'package:betchya_frontend/features/auth/models/confirm_password_input.dart';
-import 'package:betchya_frontend/features/auth/models/dob_input.dart';
 import 'package:betchya_frontend/features/auth/models/email_input.dart';
+import 'package:betchya_frontend/features/auth/models/full_name_input.dart';
 import 'package:betchya_frontend/features/auth/models/password_input.dart';
 import 'package:betchya_frontend/features/auth/providers/auth_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -8,36 +8,40 @@ import 'package:formz/formz.dart';
 
 class SignUpFormState {
   const SignUpFormState({
+    this.fullName = const FullNameInput.pure(),
     this.email = const EmailInput.pure(),
     this.password = const PasswordInput.pure(),
     this.confirmPassword = const ConfirmPasswordInput.pure(),
-    this.dob = const DOBInput.pure(),
+    this.consent = true,
     this.status = FormzStatus.pure,
     this.error,
     this.isSubmitting = false,
   });
+  final FullNameInput fullName;
   final EmailInput email;
   final PasswordInput password;
   final ConfirmPasswordInput confirmPassword;
-  final DOBInput dob;
+  final bool consent;
   final FormzStatus status;
   final String? error;
   final bool isSubmitting;
 
   SignUpFormState copyWith({
+    FullNameInput? fullName,
     EmailInput? email,
     PasswordInput? password,
     ConfirmPasswordInput? confirmPassword,
-    DOBInput? dob,
+    bool? consent,
     FormzStatus? status,
     String? error,
     bool? isSubmitting,
   }) {
     return SignUpFormState(
+      fullName: fullName ?? this.fullName,
       email: email ?? this.email,
       password: password ?? this.password,
       confirmPassword: confirmPassword ?? this.confirmPassword,
-      dob: dob ?? this.dob,
+      consent: consent ?? this.consent,
       status: status ?? this.status,
       error: error,
       isSubmitting: isSubmitting ?? this.isSubmitting,
@@ -49,11 +53,29 @@ class SignUpFormController extends StateNotifier<SignUpFormState> {
   SignUpFormController(this._authController) : super(const SignUpFormState());
   final AuthController _authController;
 
+  void fullNameChanged(String value) {
+    final fullName = FullNameInput.dirty(value);
+    state = state.copyWith(
+      fullName: fullName,
+      status: Formz.validate([
+        fullName,
+        state.email,
+        state.password,
+        state.confirmPassword,
+      ]),
+    );
+  }
+
   void emailChanged(String value) {
     final email = EmailInput.dirty(value);
     state = state.copyWith(
       email: email,
-      status: Formz.validate([email, state.password, state.dob]),
+      status: Formz.validate([
+        state.fullName,
+        email,
+        state.password,
+        state.confirmPassword,
+      ]),
     );
   }
 
@@ -70,7 +92,6 @@ class SignUpFormController extends StateNotifier<SignUpFormState> {
         state.email,
         password,
         confirmPassword,
-        state.dob,
       ]),
     );
   }
@@ -86,22 +107,14 @@ class SignUpFormController extends StateNotifier<SignUpFormState> {
         state.email,
         state.password,
         confirmPassword,
-        state.dob,
       ]),
     );
   }
 
-  void dobChanged(String value) {
-    final dob = DOBInput.dirty(value);
-    state = state.copyWith(
-      dob: dob,
-      status: Formz.validate([
-        state.email,
-        state.password,
-        state.confirmPassword,
-        dob,
-      ]),
-    );
+  // Removed dobChanged
+
+  void consentChanged(bool? value) {
+    state = state.copyWith(consent: value ?? true);
   }
 
   Future<void> submit() async {
@@ -109,6 +122,7 @@ class SignUpFormController extends StateNotifier<SignUpFormState> {
     state = state.copyWith(isSubmitting: true);
 
     try {
+      // TODO: Handle fullName and consent in backend when supported
       await _authController.signUp(
         email: state.email.value,
         password: state.password.value,

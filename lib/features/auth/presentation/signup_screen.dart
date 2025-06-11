@@ -51,14 +51,13 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
             ),
             const SizedBox(height: 16),
             TextField(
-              key: const Key('signup_email_field'),
-              onChanged: formController.emailChanged,
-              keyboardType: TextInputType.emailAddress,
+              key: const Key('signup_full_name_field'),
+              onChanged: formController.fullNameChanged,
               decoration: InputDecoration(
                 filled: true,
                 fillColor: Colors.white,
-                hintText: 'Email',
-                errorText: formState.email.invalid ? 'Invalid email' : null,
+                hintText: 'Full Name',
+                errorText: formState.fullName?.invalid == true ? 'Invalid name' : null,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(10),
                   borderSide: BorderSide.none,
@@ -69,15 +68,14 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
             ),
             const SizedBox(height: 12),
             TextField(
-              key: const Key('signup_dob_field'),
-              onChanged: formController.dobChanged,
-              keyboardType: TextInputType.datetime,
+              key: const Key('signup_email_field'),
+              onChanged: formController.emailChanged,
+              keyboardType: TextInputType.emailAddress,
               decoration: InputDecoration(
                 filled: true,
                 fillColor: Colors.white,
-                hintText: 'Date of Birth (mm/dd/yyyy)',
-                errorText:
-                    formState.dob.invalid ? 'Invalid date of birth' : null,
+                hintText: 'Email',
+                errorText: formState.email.invalid ? 'Invalid email' : null,
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(10),
                   borderSide: BorderSide.none,
@@ -135,6 +133,22 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
               ),
             ),
             const SizedBox(height: 24),
+            Row(
+              children: [
+                Checkbox(
+                  value: formState.consent,
+                  onChanged: formController.consentChanged,
+                  activeColor: const Color(0xFF1DD6C1),
+                ),
+                const Expanded(
+                  child: Text(
+                    'I want to receive emails about {organization name}, feature updates, events, and marketing promotions.',
+                    style: TextStyle(color: Colors.white, fontSize: 13),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
             if (formState.error != null) ...[
               Text(
                 formState.error!,
