@@ -56,9 +56,28 @@ void main() {
       expect(find.text('Passwords do not match'), findsOneWidget);
     });
 
-    testWidgets('enables signup button only when form is valid',
-        (tester) async {
-      // Should only enable the signup button when all fields are valid
+    testWidgets('enables signup button only when form is valid', (tester) async {
+      await pumpSignupScreen(tester);
+      final robot = SignUpScreenRobot(tester);
+      final signupButton = find.byKey(const Key('signup_button'));
+
+      // Initially disabled
+      expect(tester.widget<ElevatedButton>(signupButton).onPressed, isNull);
+
+      // Enter valid fields
+      await robot.enterFullName('John Doe');
+      await robot.enterEmail('john@example.com');
+      await robot.enterPassword('Valid123!');
+      await robot.enterConfirmPassword('Valid123!');
+      await tester.pumpAndSettle();
+      // Button should be enabled
+      expect(tester.widget<ElevatedButton>(signupButton).onPressed, isNotNull);
+
+      // Invalidate a field
+      await robot.enterEmail('invalid');
+      await tester.pumpAndSettle();
+      // Button should be disabled
+      expect(tester.widget<ElevatedButton>(signupButton).onPressed, isNull);
     });
 
     testWidgets('shows loading indicator when signing up', (tester) async {

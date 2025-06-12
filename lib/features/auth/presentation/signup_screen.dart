@@ -163,12 +163,12 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
               height: 56,
               child: ElevatedButton(
                 key: const Key('signup_button'),
-                onPressed: formState.isSubmitting
-                    ? null
-                    : () {
-                        formController..validateAll()
-                        ..submit();
-                      },
+                onPressed: formState.status == FormzStatus.valid && !formState.isSubmitting
+                    ? () {
+                        formController.validateAll();
+                        formController.submit();
+                      }
+                    : null,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: formState.status == FormzStatus.valid &&
                           !formState.isSubmitting
