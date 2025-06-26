@@ -56,7 +56,8 @@ void main() {
       expect(find.text('Passwords do not match'), findsOneWidget);
     });
 
-    testWidgets('enables signup button only when form is valid', (tester) async {
+    testWidgets('enables signup button only when form is valid',
+        (tester) async {
       await pumpSignupScreen(tester);
       final robot = SignUpScreenRobot(tester);
       final signupButton = find.byKey(const Key('signup_button'));
@@ -80,9 +81,6 @@ void main() {
       expect(tester.widget<ElevatedButton>(signupButton).onPressed, isNull);
     });
 
-    testWidgets('shows loading indicator when signing up', (tester) async {
-      // Should show a loading spinner when signup is in progress
-    });
 
     testWidgets('navigates to home on successful signup', (tester) async {
       // Should navigate to home screen after successful signup

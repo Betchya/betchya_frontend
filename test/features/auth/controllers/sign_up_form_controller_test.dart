@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:betchya_frontend/features/auth/controllers/sign_up_form_controller.dart';
 import 'package:betchya_frontend/features/auth/models/confirm_password_input.dart';
 import 'package:betchya_frontend/features/auth/models/email_input.dart';
@@ -159,7 +161,37 @@ void main() {
         expect(controller.state.isSubmitting, isFalse);
       });
 
-      test('handles signUp error', () async {
+      test('handles signUp error', () async {});
+
+      test('sets isSubmitting true during sign up and false after', () async {
+        // Arrange
+        final completer = Completer<void>();
+        when(
+          () => mockAuthController.signUp(
+            email: testEmail,
+            password: testPassword,
+          ),
+        ).thenAnswer((_) => completer.future);
+
+        controller
+          ..emailChanged(testEmail)
+          ..passwordChanged(testPassword)
+          ..fullNameChanged('John Doe')
+          ..state = controller.state.copyWith(status: FormzStatus.valid);
+
+        // Act: Start submit but don't complete the future yet
+        final submitFuture = controller.submit();
+
+        // Assert: isSubmitting should be true while waiting
+        expect(controller.state.isSubmitting, isTrue);
+
+        // Complete the signUp future
+        completer.complete();
+        await submitFuture;
+
+        // Assert: isSubmitting should be false after completion
+        expect(controller.state.isSubmitting, isFalse);
+
         // Arrange
         final exception = Exception('Sign up failed');
 

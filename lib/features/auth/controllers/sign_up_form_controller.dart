@@ -110,7 +110,7 @@ class SignUpFormController extends StateNotifier<SignUpFormState> {
       ]),
     );
   }
-  
+
   void consentChanged({bool? value}) {
     state = state.copyWith(consent: value ?? true);
   }
