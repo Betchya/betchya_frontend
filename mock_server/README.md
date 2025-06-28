@@ -7,44 +7,41 @@ This project sets up a simple mock server using Dart Frog for local development.
 ```
 mock-server
 ├── routes
-│   ├── index.dart        # Main entry point for the mock server's routes
 │   ├── users
-│   │   └── index.dart    # User-related endpoints
+│   │   └── index.dart    # /users endpoint
 │   └── posts
-│       └── index.dart    # Post-related endpoints
+│       |── index.dart    # /post endpoint
+|       └── [id].dart     # /post/{id} endpoint
 ├── pubspec.yaml          # Dart project configuration
 └── README.md             # Project documentation
 ```
 
+NOTES: Dart Frog expects folder structure to match the path that is desired for a given endpoint
+ 1. For example, the GET /users endpoint needs to be under routes/users in an index.dart file
+ 2. Path variables can be passed and is denoted in the file name for the route/endpoint it applies to, e.g. routes/posts/[id].dart
+
 ## Setup Instructions
 
-1. **Clone the repository:**
-   ```bash
-   git clone <repository-url>
-   cd mock-server
-   ```
-
-2. **Install dependencies:**
+1. **Install dependencies:**
    Make sure you have Dart installed, then run:
    ```bash
    dart pub get
    ```
 
-3. **Run the mock server:**
-   You can start the server by running:
+2. **Install the Dart Frog CLI:**
+   Make sure you have Dart installed, then run:
    ```bash
-   dart run
+   dart pub global activate dart_frog_cli
+   ```
+
+3. **Run the mock server locally with Dart Frog:**
+   You can start the server locally by running:
+   ```bash
+   dart_frog dev
    ```
 
 ## Usage
 
 - The mock server will run locally and listen for requests. You can access the endpoints defined in the `routes` directory.
 - Modify the route handlers in `routes/users/index.dart` and `routes/posts/index.dart` to customize the responses as needed.
-
-## Contributing
-
-Feel free to submit issues or pull requests if you have suggestions or improvements for the mock server. 
-
-## License
-
-This project is licensed under the MIT License. See the LICENSE file for more details.
+- NOTE: Dart Frog expexts directory structure and file naming to follow certain conventions to bind routes to
