@@ -55,7 +55,7 @@ class SignUpScreenRobot {
 
   /// Asserts that navigation to the home screen occurred.
   Future<void> expectNavigatedToHome() async {
-    // TODO: Implement navigation assertion
+    expect(find.byKey(const Key('home_screen')), findsOneWidget);
   }
 
   /// Asserts that all required input fields are present.

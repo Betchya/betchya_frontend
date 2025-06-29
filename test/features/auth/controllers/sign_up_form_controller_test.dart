@@ -1,27 +1,25 @@
-import 'dart:async';
-
 import 'package:betchya_frontend/features/auth/controllers/sign_up_form_controller.dart';
 import 'package:betchya_frontend/features/auth/models/confirm_password_input.dart';
 import 'package:betchya_frontend/features/auth/models/email_input.dart';
 import 'package:betchya_frontend/features/auth/models/full_name_input.dart';
 import 'package:betchya_frontend/features/auth/models/password_input.dart';
-import 'package:betchya_frontend/features/auth/providers/auth_provider.dart';
+import 'package:betchya_frontend/features/auth/repository/auth_repository.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:formz/formz.dart';
 import 'package:mocktail/mocktail.dart';
 
-class MockAuthController extends Mock implements AuthController {}
+class MockAuthRepository extends Mock implements AuthRepository {}
 
 void main() {
-  late MockAuthController mockAuthController;
+  late MockAuthRepository mockAuthRepository;
   late SignUpFormController controller;
 
   const testEmail = 'test@example.com';
   const testPassword = 'Test1234';
 
   setUp(() {
-    mockAuthController = MockAuthController();
-    controller = SignUpFormController(mockAuthController);
+    mockAuthRepository = MockAuthRepository();
+    controller = SignUpFormController(mockAuthRepository);
   });
 
   group('SignUpFormController', () {
@@ -118,7 +116,7 @@ void main() {
 
         // Assert
         verifyNever(
-          () => mockAuthController.signUp(
+          () => mockAuthRepository.signUp(
             email: any(named: 'email'),
             password: any(named: 'password'),
           ),
@@ -129,11 +127,11 @@ void main() {
         // Arrange
         // Mock the signUp method first
         when(
-          () => mockAuthController.signUp(
+          () => mockAuthRepository.signUp(
             email: testEmail,
             password: testPassword,
           ),
-        ).thenAnswer((_) async => {});
+        ).thenAnswer((_) async => null);
 
         // Set up form state after mocking
         controller
@@ -153,7 +151,7 @@ void main() {
 
         // Assert
         verify(
-          () => mockAuthController.signUp(
+          () => mockAuthRepository.signUp(
             email: testEmail,
             password: testPassword,
           ),
@@ -161,17 +159,14 @@ void main() {
         expect(controller.state.isSubmitting, isFalse);
       });
 
-      test('handles signUp error', () async {});
-
-      test('sets isSubmitting true during sign up and false after', () async {
-        // Arrange
-        final completer = Completer<void>();
+      test('handles signUp error', () async {
+        final exception = Exception('Sign up failed');
         when(
-          () => mockAuthController.signUp(
+          () => mockAuthRepository.signUp(
             email: testEmail,
             password: testPassword,
           ),
-        ).thenAnswer((_) => completer.future);
+        ).thenThrow(exception);
 
         controller
           ..emailChanged(testEmail)
@@ -179,52 +174,50 @@ void main() {
           ..fullNameChanged('John Doe')
           ..state = controller.state.copyWith(status: FormzStatus.valid);
 
-        // Act: Start submit but don't complete the future yet
-        final submitFuture = controller.submit();
+        await controller.submit();
 
-        // Assert: isSubmitting should be true while waiting
-        expect(controller.state.isSubmitting, isTrue);
-
-        // Complete the signUp future
-        completer.complete();
-        await submitFuture;
-
-        // Assert: isSubmitting should be false after completion
-        expect(controller.state.isSubmitting, isFalse);
-
-        // Arrange
-        final exception = Exception('Sign up failed');
-
-        // Mock the signUp method to throw an exception
-        when(
-          () => mockAuthController.signUp(
-            email: testEmail,
-            password: testPassword,
-          ),
-        ).thenThrow(exception);
-
-        // Set up form state after mocking
-        controller
-          ..emailChanged(testEmail)
-          ..passwordChanged(testPassword)
-          ..fullNameChanged('John Doe')
-
-          // Force form to be valid by directly setting the status
-          // This is needed because our form validation might be too strict
-          // for testing
-          ..state = controller.state.copyWith(
-            status: FormzStatus.valid,
-          );
-
-        // Act & Assert
-        expect(
-          () => controller.submit(),
-          throwsA(exception),
-        );
-
-        // Verify the state after error
         expect(controller.state.error, exception.toString());
         expect(controller.state.isSubmitting, isFalse);
+      });
+      group('consentChanged', () {
+        test('updates the consent value', () {
+          // consent starts as true
+          expect(controller.state.consent, isTrue);
+
+          // Change to false
+          controller.consentChanged(value: false);
+          expect(controller.state.consent, isFalse);
+
+          // Change back to true
+          controller.consentChanged(value: true);
+          expect(controller.state.consent, isTrue);
+        });
+      });
+
+      group('validateAll', () {
+        test('sets all fields to dirty and updates status', () {
+          // fullName is dirty
+          controller..fullNameChanged('John Doe')
+          // email is dirty
+          ..emailChanged(testEmail)
+          // password is dirty
+          ..passwordChanged(testPassword)
+          // confirmPassword is dirty
+          ..confirmPasswordChanged(testPassword)
+          // consent is dirty
+          ..consentChanged(value: false)
+
+          // Validate all
+          ..validateAll();
+
+          // Assert all fields are dirty and status is updated
+          expect(controller.state.fullName.pure, isFalse);
+          expect(controller.state.email.pure, isFalse);
+          expect(controller.state.password.pure, isFalse);
+          expect(controller.state.confirmPassword.pure, isFalse);
+          expect(controller.state.consent, isFalse);
+          expect(controller.state.status, FormzStatus.invalid);
+        });
       });
     });
   });

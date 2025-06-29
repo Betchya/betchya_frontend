@@ -31,7 +31,6 @@ class HomeScreen extends ConsumerWidget {
         ),
         body: Center(
           child: Column(
-            key: const Key('home_screen'),
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text('Welcome, ${user?.email ?? 'User'}!'),

@@ -1,19 +1,24 @@
 import 'package:betchya_frontend/features/auth/controllers/sign_up_form_controller.dart';
+import 'package:betchya_frontend/features/auth/presentation/home_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:formz/formz.dart';
 
-class SignUpScreen extends ConsumerStatefulWidget {
+class SignUpScreen extends ConsumerWidget {
   const SignUpScreen({super.key});
 
   @override
-  ConsumerState<SignUpScreen> createState() => _SignUpScreenState();
-}
-
-class _SignUpScreenState extends ConsumerState<SignUpScreen> {
-  @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    ref.listen<SignUpFormState>(signUpFormControllerProvider, (previous, next) {
+      if (next.status == FormzStatus.submissionSuccess) {
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute<Widget>(
+            builder: (_) => const HomeScreen(),
+          ),
+        );
+      }
+    });
     final formState = ref.watch(signUpFormControllerProvider);
     final formController = ref.read(signUpFormControllerProvider.notifier);
     return Scaffold(
@@ -144,7 +149,8 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
                 ),
                 const Expanded(
                   child: Text(
-                    'I want to receive emails about {organization name}, feature updates, events, and marketing promotions.',
+                    'I want to receive emails about {organization name}, '
+                    'feature updates, events, and marketing promotions.',
                     style: TextStyle(color: Colors.white, fontSize: 13),
                   ),
                 ),
@@ -163,10 +169,11 @@ class _SignUpScreenState extends ConsumerState<SignUpScreen> {
               height: 56,
               child: ElevatedButton(
                 key: const Key('signup_button'),
-                onPressed: formState.status == FormzStatus.valid && !formState.isSubmitting
-                    ? () {
+                onPressed: formState.status == FormzStatus.valid &&
+                        !formState.isSubmitting
+                    ? () async {
                         formController.validateAll();
-                        formController.submit();
+                        await formController.submit();
                       }
                     : null,
                 style: ElevatedButton.styleFrom(
