@@ -213,9 +213,18 @@ class SignUpScreen extends ConsumerWidget {
             const Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                _SocialButton(asset: 'assets/icons/google.svg'),
-                _SocialButton(asset: 'assets/icons/apple.svg'),
-                _SocialButton(asset: 'assets/icons/facebook.svg'),
+                _SocialButton(
+                  asset: 'assets/icons/google.svg',
+                  key: Key('social_button_google'),
+                ),
+                _SocialButton(
+                  asset: 'assets/icons/apple.svg',
+                  key: Key('social_button_apple'),
+                ),
+                _SocialButton(
+                  asset: 'assets/icons/facebook.svg',
+                  key: Key('social_button_facebook'),
+                ),
               ],
             ),
           ],
@@ -226,7 +235,7 @@ class SignUpScreen extends ConsumerWidget {
 }
 
 class _SocialButton extends StatelessWidget {
-  const _SocialButton({required this.asset});
+  const _SocialButton({required this.asset, super.key});
 
   final String asset;
 
@@ -235,6 +244,7 @@ class _SocialButton extends StatelessWidget {
     return InkWell(
       onTap: () {
         // TODO: Implement social sign up
+        debugPrint('Tapped social sign up: $asset');
       },
       child: Container(
         width: 56,
