@@ -2,11 +2,15 @@ import 'package:betchya_frontend/features/auth/controllers/login_form_controller
 import 'package:betchya_frontend/features/auth/models/email_input.dart';
 import 'package:betchya_frontend/features/auth/models/password_input.dart';
 import 'package:betchya_frontend/features/auth/providers/auth_provider.dart';
+import 'package:betchya_frontend/features/auth/repository/auth_repository.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:formz/formz.dart';
 import 'package:mocktail/mocktail.dart';
 
 class MockAuthController extends Mock implements AuthController {}
+
+class MockAuthRepository extends Mock implements AuthRepository {}
 
 void main() {
   late MockAuthController mockAuthController;
@@ -27,6 +31,17 @@ void main() {
       expect(controller.state.status, FormzStatus.pure);
       expect(controller.state.error, isNull);
       expect(controller.state.isSubmitting, isFalse);
+    });
+
+    test('loginFormControllerProvider provides a LoginFormController', () {
+      final mockAuthRepository = MockAuthRepository();
+      final container = ProviderContainer(
+        overrides: [
+          authRepositoryProvider.overrideWithValue(mockAuthRepository),
+        ],
+      );
+      final controller = container.read(loginFormControllerProvider.notifier);
+      expect(controller, isA<LoginFormController>());
     });
 
     group('emailChanged', () {
