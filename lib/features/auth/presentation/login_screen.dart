@@ -1,15 +1,34 @@
 import 'package:betchya_frontend/features/auth/controllers/login_form_controller.dart';
+import 'package:betchya_frontend/features/auth/presentation/home_screen.dart';
 import 'package:betchya_frontend/features/auth/presentation/signup_screen.dart';
+import 'package:betchya_frontend/features/auth/providers/auth_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:formz/formz.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class LoginScreen extends ConsumerWidget {
   const LoginScreen({super.key});
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    ref.listen<AsyncValue<User?>>(
+      authControllerProvider,
+      (previous, next) {
+        // If we have a user, navigate to HomeScreen
+        if (next is AsyncData && next.value != null) {
+          Navigator.of(context).pushReplacement(
+            MaterialPageRoute<Widget>(builder: (_) => const HomeScreen()),
+          );
+        }
+        // Optionally: handle errors
+        if (next is AsyncError) {
+          // Show error message, etc.
+        }
+      },
+    );
+
     return Scaffold(
       backgroundColor: const Color(0xFF22124B),
       body: SafeArea(
@@ -35,8 +54,18 @@ class _LoginScreenContentState extends ConsumerState<_LoginScreenContent> {
 
   @override
   Widget build(BuildContext context) {
-    final formState = ref.watch(loginFormControllerProvider);
+    ref.listen<LoginFormState>(loginFormControllerProvider, (previous, next) {
+      if (next.status == FormzStatus.submissionSuccess) {
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute<Widget>(builder: (_) => const HomeScreen()),
+        );
+      }
+    });
+
     final formController = ref.read(loginFormControllerProvider.notifier);
+    final formState = ref.watch(loginFormControllerProvider);
+    final authState = ref.watch(authControllerProvider);
+
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
@@ -116,11 +145,19 @@ class _LoginScreenContentState extends ConsumerState<_LoginScreenContent> {
                 borderRadius: BorderRadius.circular(8),
               ),
             ),
-            onPressed:
-                formState.status == FormzStatus.valid && !formState.isSubmitting
-                    ? formController.submit
-                    : null,
-            child: formState.isSubmitting
+            onPressed: formState.status == FormzStatus.valid &&
+                    !formState.isSubmitting
+                ? () async {
+                    formController.validateAll();
+                    if (formState.status == FormzStatus.valid) {
+                      await ref.read(authControllerProvider.notifier).signIn(
+                            email: formState.email.value,
+                            password: formState.password.value,
+                          );
+                    }
+                  }
+                : null,
+            child: authState.isLoading
                 ? const CircularProgressIndicator(color: Colors.white)
                 : const Text(
                     'Login',
@@ -132,11 +169,11 @@ class _LoginScreenContentState extends ConsumerState<_LoginScreenContent> {
                   ),
           ),
         ),
-        if (formState.error != null)
+        if (authState.hasError)
           Padding(
             padding: const EdgeInsets.only(top: 12),
             child: Text(
-              formState.error!,
+              authState.error.toString(),
               style: const TextStyle(color: Colors.red),
             ),
           ),

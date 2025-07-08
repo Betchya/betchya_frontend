@@ -1,6 +1,5 @@
 import 'package:betchya_frontend/features/auth/models/email_input.dart';
 import 'package:betchya_frontend/features/auth/models/password_input.dart';
-import 'package:betchya_frontend/features/auth/providers/auth_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:formz/formz.dart';
 
@@ -37,9 +36,7 @@ class LoginFormState {
 }
 
 class LoginFormController extends StateNotifier<LoginFormState> {
-  LoginFormController(this._authController) : super(const LoginFormState());
-
-  final AuthController _authController;
+  LoginFormController() : super(const LoginFormState());
 
   void emailChanged(String value) {
     final email = EmailInput.dirty(value);
@@ -57,29 +54,19 @@ class LoginFormController extends StateNotifier<LoginFormState> {
     );
   }
 
-  Future<void> submit() async {
-    if (state.status != FormzStatus.valid) return;
-    state = state.copyWith(isSubmitting: true);
-
-    try {
-      await _authController.signIn(
-        email: state.email.value,
-        password: state.password.value,
-      );
-      state = state.copyWith(isSubmitting: false);
-    } catch (e) {
-      state = state.copyWith(
-        isSubmitting: false,
-        error: e.toString(),
-      );
-      rethrow;
-    }
+  void validateAll() {
+    final email = EmailInput.dirty(state.email.value);
+    final password = PasswordInput.dirty(state.password.value);
+    state = state.copyWith(
+      email: email,
+      password: password,
+      status: Formz.validate([email, password]),
+    );
   }
 }
 
 final loginFormControllerProvider =
     StateNotifierProvider.autoDispose<LoginFormController, LoginFormState>(
         (ref) {
-  final authController = ref.read(authControllerProvider.notifier);
-  return LoginFormController(authController);
+  return LoginFormController();
 });
