@@ -40,6 +40,8 @@ linked_*.ds
 unlinked.ds
 unlinked_spec.ds
 .fvm/
+# Mock Server related
+**/mock_server/.dart_frog/
 
 # Android related
 **/android/**/gradle-wrapper.jar
