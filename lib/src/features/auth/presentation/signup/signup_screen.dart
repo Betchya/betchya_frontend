@@ -1,4 +1,4 @@
-import 'package:betchya_frontend/src/features/auth/controllers/sign_up_form_controller.dart';
+import 'package:betchya_frontend/src/features/auth/presentation/signup/sign_up_form_controller.dart';
 import 'package:betchya_frontend/src/routing/app_router.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

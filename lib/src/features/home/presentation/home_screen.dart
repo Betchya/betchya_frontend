@@ -1,4 +1,4 @@
-import 'package:betchya_frontend/src/features/auth/providers/auth_provider.dart';
+import 'package:betchya_frontend/src/features/auth/presentation/auth_provider.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 

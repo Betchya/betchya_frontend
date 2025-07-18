@@ -1,6 +1,6 @@
-import 'package:betchya_frontend/src/features/auth/presentation/signup_screen.dart';
-import 'package:betchya_frontend/src/features/auth/providers/auth_provider.dart';
-import 'package:betchya_frontend/src/features/auth/repository/auth_repository.dart';
+import 'package:betchya_frontend/src/features/auth/data/auth_repository.dart';
+import 'package:betchya_frontend/src/features/auth/presentation/auth_provider.dart';
+import 'package:betchya_frontend/src/features/auth/presentation/signup/signup_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
@@ -8,7 +8,7 @@ import 'package:go_router/go_router.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-import 'robots/signup_screen_robot.dart';
+import '../robots/signup_screen_robot.dart';
 
 class MockAuthRepository extends Mock implements AuthRepository {}
 

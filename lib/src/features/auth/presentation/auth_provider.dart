@@ -1,5 +1,5 @@
 import 'package:betchya_frontend/src/core/providers/supabase_providers.dart';
-import 'package:betchya_frontend/src/features/auth/repository/auth_repository.dart';
+import 'package:betchya_frontend/src/features/auth/data/auth_repository.dart';
 import 'package:riverpod_annotation/riverpod_annotation.dart';
 import 'package:supabase_flutter/supabase_flutter.dart' show User;
 

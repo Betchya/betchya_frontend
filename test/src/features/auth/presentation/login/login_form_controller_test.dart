@@ -1,6 +1,6 @@
-import 'package:betchya_frontend/src/features/auth/controllers/login_form_controller.dart';
-import 'package:betchya_frontend/src/features/auth/models/email_input.dart';
-import 'package:betchya_frontend/src/features/auth/models/password_input.dart';
+import 'package:betchya_frontend/src/features/auth/presentation/login/login_form_controller.dart';
+import 'package:betchya_frontend/src/features/auth/domain/email_input.dart';
+import 'package:betchya_frontend/src/features/auth/domain/password_input.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:formz/formz.dart';

@@ -1,5 +1,5 @@
 import 'package:betchya_frontend/src/core/providers/supabase_providers.dart';
-import 'package:betchya_frontend/src/features/auth/providers/auth_provider.dart';
+import 'package:betchya_frontend/src/features/auth/presentation/auth_provider.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';

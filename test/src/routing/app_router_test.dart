@@ -1,8 +1,8 @@
-import 'package:betchya_frontend/src/features/auth/presentation/home_screen.dart';
-import 'package:betchya_frontend/src/features/auth/presentation/login_screen.dart';
-import 'package:betchya_frontend/src/features/auth/presentation/signup_screen.dart';
-import 'package:betchya_frontend/src/features/auth/providers/auth_provider.dart';
-import 'package:betchya_frontend/src/features/auth/repository/auth_repository.dart';
+import 'package:betchya_frontend/src/features/home/presentation/home_screen.dart';
+import 'package:betchya_frontend/src/features/auth/presentation/login/login_screen.dart';
+import 'package:betchya_frontend/src/features/auth/presentation/signup/signup_screen.dart';
+import 'package:betchya_frontend/src/features/auth/presentation/auth_provider.dart';
+import 'package:betchya_frontend/src/features/auth/data/auth_repository.dart';
 import 'package:betchya_frontend/src/routing/app_router.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';

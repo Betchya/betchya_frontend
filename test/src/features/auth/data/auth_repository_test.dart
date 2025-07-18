@@ -1,6 +1,6 @@
 import 'dart:async';
 
-import 'package:betchya_frontend/src/features/auth/repository/auth_repository.dart';
+import 'package:betchya_frontend/src/features/auth/data/auth_repository.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
