@@ -7,6 +7,7 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:formz/formz.dart';
 import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:betchya_frontend/features/auth/presentation/forgot_login_info.dart';
 
 class LoginScreen extends ConsumerWidget {
   const LoginScreen({super.key});
@@ -185,7 +186,11 @@ class _LoginScreenContentState extends ConsumerState<_LoginScreenContent> {
         GestureDetector(
           key: const Key('login_forgot_info'),
           onTap: () {
-            // TODO(josh-sanford): Implement forgot login info navigation
+            Navigator.of(context).push(
+              MaterialPageRoute<Widget>(
+                builder: (context) => const ForgotLoginInfoScreen(),
+              ),
+            );
           },
           child: const Text(
             'Forgot Your Login Info?',
