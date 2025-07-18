@@ -44,4 +44,4 @@ NOTES: Dart Frog expects folder structure to match the path that is desired for 
 
 - The mock server will run locally and listen for requests. You can access the endpoints defined in the `routes` directory.
 - Modify the route handlers in `routes/users/index.dart` and `routes/posts/index.dart` to customize the responses as needed.
-- NOTE: Dart Frog expexts directory structure and file naming to follow certain conventions to bind routes to
+- NOTE: Dart Frog expects directory structure and file naming to follow certain conventions to bind routes to
