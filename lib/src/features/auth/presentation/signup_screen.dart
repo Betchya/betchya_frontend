@@ -1,9 +1,10 @@
 import 'package:betchya_frontend/src/features/auth/controllers/sign_up_form_controller.dart';
-import 'package:betchya_frontend/src/features/auth/presentation/home_screen.dart';
+import 'package:betchya_frontend/src/routing/app_router.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:formz/formz.dart';
+import 'package:go_router/go_router.dart';
 
 class SignUpScreen extends ConsumerWidget {
   const SignUpScreen({super.key});
@@ -12,11 +13,7 @@ class SignUpScreen extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     ref.listen<SignUpFormState>(signUpFormControllerProvider, (previous, next) {
       if (next.status == FormzStatus.submissionSuccess) {
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute<Widget>(
-            builder: (_) => const HomeScreen(),
-          ),
-        );
+        context.goNamed(AppRoute.home.name);
       }
     });
 
@@ -30,7 +27,7 @@ class SignUpScreen extends ConsumerWidget {
         elevation: 0,
         leading: IconButton(
           icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () => Navigator.of(context).pop(),
+          onPressed: () => context.goNamed(AppRoute.login.name),
         ),
         title: const Text(
           'Register',

@@ -25,6 +25,7 @@ dev_dependencies:
     sdk: flutter
   mocktail: ^1.0.4
   riverpod_generator: ^2.3.11
+  shared_preferences: ^2.5.3
   very_good_analysis: ^6.0.0
 
 flutter:

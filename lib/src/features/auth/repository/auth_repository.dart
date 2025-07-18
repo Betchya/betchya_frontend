@@ -5,6 +5,12 @@ class AuthRepository {
 
   final SupabaseClient supabaseClient;
 
+  User? get currentUser => supabaseClient.auth.currentUser;
+
+  // Stream that emits the current user on any auth state change
+  Stream<User?> get authStateChanges =>
+      supabaseClient.auth.onAuthStateChange.map((event) => event.session?.user);
+
   Future<User?> signUp({
     required String email,
     required String password,
@@ -29,9 +35,5 @@ class AuthRepository {
 
   Future<void> signOut() async {
     await supabaseClient.auth.signOut();
-  }
-
-  User? getCurrentUser() {
-    return supabaseClient.auth.currentUser;
   }
 }

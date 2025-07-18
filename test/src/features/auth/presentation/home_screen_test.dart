@@ -1,16 +1,27 @@
 import 'package:betchya_frontend/src/features/auth/presentation/home_screen.dart';
+import 'package:betchya_frontend/src/features/auth/providers/auth_provider.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+
+class _FakeAuthController extends AuthController {
+  _FakeAuthController();
+
+  bool signOutCalled = false;
+
+  @override
+  Future<void> signOut() async {
+    signOutCalled = true;
+  }
+
+  @override
+  Future<User?> build() async {
+    return null; // No user info needed for this test
+  }
+}
 
 void main() {
-  setUp(() {
-    // Initialize any global mocks or dependencies here if needed
-  });
-
-  tearDown(() {
-    // Clean up after tests if needed
-  });
-
   Future<void> pumpHomeScreen(
     WidgetTester tester, {
     List<Override> overrides = const [],
@@ -18,7 +29,9 @@ void main() {
     await tester.pumpWidget(
       ProviderScope(
         overrides: overrides,
-        child: const HomeScreen(),
+        child: const MaterialApp(
+          home: HomeScreen(),
+        ),
       ),
     );
     await tester.pumpAndSettle();
@@ -26,23 +39,33 @@ void main() {
 
   group('HomeScreen', () {
     testWidgets('renders main UI elements', (tester) async {
-      // Should verify all main home screen elements are present
+      await pumpHomeScreen(tester);
+
+      expect(find.byType(AppBar), findsOneWidget);
+      expect(find.text('Home'), findsOneWidget);
+      expect(find.byKey(const Key('home_logout_button')), findsOneWidget);
+      expect(find.byIcon(Icons.logout), findsOneWidget);
+      expect(find.text('Welcome!'), findsOneWidget);
     });
 
-    testWidgets('displays user info correctly', (tester) async {
-      // Should display correct user information
-    });
+    testWidgets('calls signOut when logout button is tapped', (tester) async {
+      // Use a mock for the AuthController
+      final fakeAuthController = _FakeAuthController();
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            authControllerProvider.overrideWith(() => fakeAuthController),
+          ],
+          child: const MaterialApp(home: HomeScreen()),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(fakeAuthController.signOutCalled, isFalse);
 
-    testWidgets('navigates to other screens via buttons', (tester) async {
-      // Should navigate to other screens when buttons are tapped
-    });
+      await tester.tap(find.byKey(const Key('home_logout_button')));
+      await tester.pump();
 
-    testWidgets('shows loading indicator when fetching data', (tester) async {
-      // Should show a loading spinner when fetching data
-    });
-
-    testWidgets('shows error message on data fetch failure', (tester) async {
-      // Should display an error message if fetching data fails
+      expect(fakeAuthController.signOutCalled, isTrue);
     });
   });
 }

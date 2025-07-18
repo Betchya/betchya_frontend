@@ -15,6 +15,43 @@ void main() {
     controller = LoginFormController();
   });
 
+  group('LoginFormState', () {
+    test('initial state is correct', () {
+      expect(controller.state.email, const EmailInput.pure());
+      expect(controller.state.password, const PasswordInput.pure());
+      expect(controller.state.status, FormzStatus.pure);
+      expect(controller.state.error, isNull);
+      expect(controller.state.isSubmitting, isFalse);
+    });
+
+    test('copyWith updates all fields correctly', () {
+      const initial = LoginFormState();
+      final updated = initial.copyWith(
+        email: const EmailInput.dirty('foo@bar.com'),
+        password: const PasswordInput.dirty('pw'),
+        status: FormzStatus.valid,
+        error: 'err',
+        isSubmitting: true,
+      );
+      expect(updated.email, const EmailInput.dirty('foo@bar.com'));
+      expect(updated.password, const PasswordInput.dirty('pw'));
+      expect(updated.status, FormzStatus.valid);
+      expect(updated.error, 'err');
+      expect(updated.isSubmitting, true);
+    });
+
+    test('copyWith falls back to previous status when status is not provided',
+        () {
+      const initial = LoginFormState(
+        status: FormzStatus.invalid,
+      );
+      final updated = initial.copyWith(
+        email: const EmailInput.dirty('foo@bar.com'),
+      );
+      expect(updated.status, FormzStatus.invalid);
+    });
+  });
+
   group('LoginFormController', () {
     test('initial state is correct', () {
       expect(controller.state.email, const EmailInput.pure());

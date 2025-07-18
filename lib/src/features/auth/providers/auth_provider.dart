@@ -18,7 +18,7 @@ class AuthController extends _$AuthController {
 
   @override
   Future<User?> build() async {
-    return _authRepository.getCurrentUser();
+    return _authRepository.currentUser;
   }
 
   Future<void> signUp({

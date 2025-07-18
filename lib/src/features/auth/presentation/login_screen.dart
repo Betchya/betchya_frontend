@@ -1,11 +1,11 @@
 import 'package:betchya_frontend/src/features/auth/controllers/login_form_controller.dart';
-import 'package:betchya_frontend/src/features/auth/presentation/home_screen.dart';
-import 'package:betchya_frontend/src/features/auth/presentation/signup_screen.dart';
 import 'package:betchya_frontend/src/features/auth/providers/auth_provider.dart';
+import 'package:betchya_frontend/src/routing/app_router.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:formz/formz.dart';
+import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 class LoginScreen extends ConsumerWidget {
@@ -18,13 +18,7 @@ class LoginScreen extends ConsumerWidget {
       (previous, next) {
         // If we have a user, navigate to HomeScreen
         if (next is AsyncData && next.value != null) {
-          Navigator.of(context).pushReplacement(
-            MaterialPageRoute<Widget>(builder: (_) => const HomeScreen()),
-          );
-        }
-        // Optionally: handle errors
-        if (next is AsyncError) {
-          // Show error message, etc.
+          context.goNamed(AppRoute.home.name);
         }
       },
     );
@@ -54,14 +48,6 @@ class _LoginScreenContentState extends ConsumerState<_LoginScreenContent> {
 
   @override
   Widget build(BuildContext context) {
-    ref.listen<LoginFormState>(loginFormControllerProvider, (previous, next) {
-      if (next.status == FormzStatus.submissionSuccess) {
-        Navigator.of(context).pushReplacement(
-          MaterialPageRoute<Widget>(builder: (_) => const HomeScreen()),
-        );
-      }
-    });
-
     final formController = ref.read(loginFormControllerProvider.notifier);
     final formState = ref.watch(loginFormControllerProvider);
     final authState = ref.watch(authControllerProvider);
@@ -182,11 +168,7 @@ class _LoginScreenContentState extends ConsumerState<_LoginScreenContent> {
         GestureDetector(
           key: const Key('login_create_account'),
           onTap: () {
-            Navigator.of(context).push(
-              MaterialPageRoute<Widget>(
-                builder: (context) => const SignUpScreen(),
-              ),
-            );
+            context.goNamed(AppRoute.signUp.name);
           },
           child: const Text(
             'Create Account',

@@ -4,6 +4,7 @@ import 'package:betchya_frontend/src/features/auth/repository/auth_repository.da
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:go_router/go_router.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
@@ -11,11 +12,15 @@ import 'robots/signup_screen_robot.dart';
 
 class MockAuthRepository extends Mock implements AuthRepository {}
 
+class MockGoRouter extends Mock implements GoRouter {}
+
 void main() {
   late MockAuthRepository authRepository;
+  late MockGoRouter mockRouter;
 
   setUp(() {
     authRepository = MockAuthRepository();
+    mockRouter = MockGoRouter();
   });
 
   Future<void> pumpSignupScreen(
@@ -29,8 +34,11 @@ void main() {
             : [
                 authRepositoryProvider.overrideWith((ref) => authRepository),
               ],
-        child: const MaterialApp(
-          home: SignUpScreen(),
+        child: InheritedGoRouter(
+          goRouter: mockRouter,
+          child: const MaterialApp(
+            home: SignUpScreen(),
+          ),
         ),
       ),
     );
@@ -106,6 +114,8 @@ void main() {
           password: any(named: 'password'),
         ),
       ).thenAnswer((_) async => fakeUser);
+      // Mock router navigation
+      when(() => mockRouter.goNamed(any())).thenReturn(null);
       await pumpSignupScreen(
         tester,
         overrides: [
@@ -120,8 +130,8 @@ void main() {
       await robot.enterConfirmPassword('Valid123!');
       // Tap signup
       await robot.tapSignupButton();
-      // Assert
-      await robot.expectNavigatedToHome();
+      // Verify navigation to signup
+      verify(() => mockRouter.goNamed('home')).called(1);
     });
 
     testWidgets('shows error on failed signup', (tester) async {
@@ -148,11 +158,23 @@ void main() {
   });
 
   testWidgets('back arrow is present and tappable', (tester) async {
-    await pumpSignupScreen(tester);
+    // Arrange
+    when(() => mockRouter.goNamed(any())).thenReturn(null);
+    await pumpSignupScreen(
+      tester,
+      overrides: [
+        authRepositoryProvider.overrideWith((ref) => authRepository),
+      ],
+    );
+
+    // Act: Tap the back arrow
     final backButton = find.byIcon(Icons.arrow_back);
     expect(backButton, findsOneWidget);
     await tester.tap(backButton);
-    // No need to check navigation, just ensure no crash
+    await tester.pumpAndSettle();
+
+    // Assert: Navigates to login
+    verify(() => mockRouter.goNamed('login')).called(1);
   });
 
   testWidgets('toggling the consent checkbox updates its value',
