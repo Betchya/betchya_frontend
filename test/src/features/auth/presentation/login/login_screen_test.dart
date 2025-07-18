@@ -8,7 +8,7 @@ import 'package:go_router/go_router.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-import '../robots/login_screen_robot.dart';
+import '../../robots/auth_robot.dart';
 
 class MockAuthRepository extends Mock implements AuthRepository {}
 
@@ -54,15 +54,15 @@ void main() {
   group('LoginScreen', () {
     testWidgets('renders all required input fields', (tester) async {
       await pumpLoginScreen(tester);
-      final robot = LoginScreenRobot(tester);
-      await robot.expectFieldsPresent();
+      final robot = AuthRobot(tester);
+      await robot.expectLoginFieldsPresent();
     });
 
     testWidgets('shows validation errors for invalid input', (tester) async {
       await pumpLoginScreen(tester);
-      final robot = LoginScreenRobot(tester);
-      await robot.enterEmail('notanemail');
-      await robot.enterPassword('short');
+      final robot = AuthRobot(tester);
+      await robot.enterLoginEmail('notanemail');
+      await robot.enterLoginPassword('short');
       // Unfocus to trigger validation
       await tester.testTextInput.receiveAction(TextInputAction.done);
       await tester.pumpAndSettle();
@@ -73,16 +73,16 @@ void main() {
     testWidgets('enables login button and can be tapped when form is valid',
         (tester) async {
       await pumpLoginScreen(tester);
-      final robot = LoginScreenRobot(tester);
+      final robot = AuthRobot(tester);
       // Initially disabled
       await robot.expectLoginButtonEnabled(isEnabled: false);
       // Enter invalid email and password
-      await robot.enterEmail('bad');
-      await robot.enterPassword('short');
+      await robot.enterLoginEmail('bad');
+      await robot.enterLoginPassword('short');
       await robot.expectLoginButtonEnabled(isEnabled: false);
       // Enter valid email and valid password
-      await robot.enterEmail('test@example.com');
-      await robot.enterPassword('Abcd1234!');
+      await robot.enterLoginEmail('test@example.com');
+      await robot.enterLoginPassword('Abcd1234!');
       await robot.expectLoginButtonEnabled(isEnabled: true);
       // Verify we can tap the button
       await robot.tapLoginButton();
@@ -102,11 +102,11 @@ void main() {
       ).thenThrow(error);
 
       await pumpLoginScreen(tester);
-      final robot = LoginScreenRobot(tester);
+      final robot = AuthRobot(tester);
 
       // Enter valid credentials and verify form state
-      await robot.enterEmail('test@example.com');
-      await robot.enterPassword('Abcd1234!');
+      await robot.enterLoginEmail('test@example.com');
+      await robot.enterLoginPassword('Abcd1234!');
       await robot.expectLoginButtonEnabled(isEnabled: true);
 
       // Act: tap login button
@@ -141,10 +141,10 @@ void main() {
       when(() => mockRouter.goNamed(any())).thenReturn(null);
 
       await pumpLoginScreen(tester);
-      final robot = LoginScreenRobot(tester);
+      final robot = AuthRobot(tester);
 
-      await robot.enterEmail('test@example.com');
-      await robot.enterPassword('Abcd1234!');
+      await robot.enterLoginEmail('test@example.com');
+      await robot.enterLoginPassword('Abcd1234!');
       await robot.tapLoginButton();
 
       // Verify auth state is updated with the user

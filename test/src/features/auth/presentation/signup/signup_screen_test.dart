@@ -8,7 +8,7 @@ import 'package:go_router/go_router.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
-import '../robots/signup_screen_robot.dart';
+import '../../robots/auth_robot.dart';
 
 class MockAuthRepository extends Mock implements AuthRepository {}
 
@@ -48,24 +48,25 @@ void main() {
   group('SignupScreen', () {
     testWidgets('renders all required input fields', (tester) async {
       await pumpSignupScreen(tester);
-      final robot = SignUpScreenRobot(tester);
-      await robot.expectFieldsPresent();
+      final robot = AuthRobot(tester);
+      await robot.expectSignupFieldsPresent();
     });
 
     testWidgets('shows validation errors for invalid input', (tester) async {
       await pumpSignupScreen(tester);
-      final robot = SignUpScreenRobot(tester);
-      // Enter non-empty then empty full name to ensure field is dirty and error shows
+      final robot = AuthRobot(tester);
+      // Enter non-empty then empty full name to ensure field is dirty and
+      // error shows
       await robot.enterFullName('John');
       await robot.enterFullName('');
       expect(find.text('Invalid name'), findsOneWidget);
 
       // Enter invalid email and check error
-      await robot.enterEmail('invalid-email');
+      await robot.enterSignupEmail('invalid-email');
       expect(find.text('Invalid email'), findsOneWidget);
 
       // Enter invalid password and check error
-      await robot.enterPassword('123');
+      await robot.enterSignupPassword('123');
       expect(find.text('Invalid password'), findsOneWidget);
 
       // Enter non-matching confirm password and check error
@@ -76,7 +77,7 @@ void main() {
     testWidgets('enables signup button only when form is valid',
         (tester) async {
       await pumpSignupScreen(tester);
-      final robot = SignUpScreenRobot(tester);
+      final robot = AuthRobot(tester);
       final signupButton = find.byKey(const Key('signup_button'));
 
       // Initially disabled
@@ -84,15 +85,15 @@ void main() {
 
       // Enter valid fields
       await robot.enterFullName('John Doe');
-      await robot.enterEmail('john@example.com');
-      await robot.enterPassword('Valid123!');
+      await robot.enterSignupEmail('john@example.com');
+      await robot.enterSignupPassword('Valid123!');
       await robot.enterConfirmPassword('Valid123!');
       await tester.pumpAndSettle();
       // Button should be enabled
       expect(tester.widget<ElevatedButton>(signupButton).onPressed, isNotNull);
 
       // Invalidate a field
-      await robot.enterEmail('invalid');
+      await robot.enterSignupEmail('invalid');
       await tester.pumpAndSettle();
       // Button should be disabled
       expect(tester.widget<ElevatedButton>(signupButton).onPressed, isNull);
@@ -123,10 +124,10 @@ void main() {
         ],
       );
 
-      final robot = SignUpScreenRobot(tester);
+      final robot = AuthRobot(tester);
       await robot.enterFullName('John Doe');
-      await robot.enterEmail('john@example.com');
-      await robot.enterPassword('Valid123!');
+      await robot.enterSignupEmail('john@example.com');
+      await robot.enterSignupPassword('Valid123!');
       await robot.enterConfirmPassword('Valid123!');
       // Tap signup
       await robot.tapSignupButton();
@@ -144,10 +145,10 @@ void main() {
         ),
       ).thenThrow(Exception('Failed to sign up'));
       await pumpSignupScreen(tester);
-      final robot = SignUpScreenRobot(tester);
+      final robot = AuthRobot(tester);
       await robot.enterFullName('John Doe');
-      await robot.enterEmail('john@example.com');
-      await robot.enterPassword('Valid123!');
+      await robot.enterSignupEmail('john@example.com');
+      await robot.enterSignupPassword('Valid123!');
       await robot.enterConfirmPassword('Valid123!');
       // Simulate a failure by tapping signup (should trigger error handling)
       await robot.tapSignupButton();

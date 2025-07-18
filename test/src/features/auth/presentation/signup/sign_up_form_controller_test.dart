@@ -1,9 +1,9 @@
-import 'package:betchya_frontend/src/features/auth/presentation/signup/sign_up_form_controller.dart';
+import 'package:betchya_frontend/src/features/auth/data/auth_repository.dart';
 import 'package:betchya_frontend/src/features/auth/domain/confirm_password_input.dart';
 import 'package:betchya_frontend/src/features/auth/domain/email_input.dart';
 import 'package:betchya_frontend/src/features/auth/domain/full_name_input.dart';
 import 'package:betchya_frontend/src/features/auth/domain/password_input.dart';
-import 'package:betchya_frontend/src/features/auth/data/auth_repository.dart';
+import 'package:betchya_frontend/src/features/auth/presentation/signup/sign_up_form_controller.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:formz/formz.dart';
 import 'package:mocktail/mocktail.dart';
@@ -197,18 +197,19 @@ void main() {
       group('validateAll', () {
         test('sets all fields to dirty and updates status', () {
           // fullName is dirty
-          controller..fullNameChanged('John Doe')
-          // email is dirty
-          ..emailChanged(testEmail)
-          // password is dirty
-          ..passwordChanged(testPassword)
-          // confirmPassword is dirty
-          ..confirmPasswordChanged(testPassword)
-          // consent is dirty
-          ..consentChanged(value: false)
+          controller
+            ..fullNameChanged('John Doe')
+            // email is dirty
+            ..emailChanged(testEmail)
+            // password is dirty
+            ..passwordChanged(testPassword)
+            // confirmPassword is dirty
+            ..confirmPasswordChanged(testPassword)
+            // consent is dirty
+            ..consentChanged(value: false)
 
-          // Validate all
-          ..validateAll();
+            // Validate all
+            ..validateAll();
 
           // Assert all fields are dirty and status is updated
           expect(controller.state.fullName.pure, isFalse);

@@ -242,7 +242,7 @@ class _SocialButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return InkWell(
       onTap: () {
-        // TODO: Implement social sign up
+        // TODO(josh-sanford): Implement social sign up
         debugPrint('Tapped social sign up: $asset');
       },
       child: Container(
