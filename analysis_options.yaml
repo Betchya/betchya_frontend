@@ -4,6 +4,7 @@ linter:
     public_member_api_docs: false
 analyzer:
   exclude:
+    - mock_server/**
     - .dart_frog/**
     - "**/*.g.dart"
     - "**/*.freezed.dart"
