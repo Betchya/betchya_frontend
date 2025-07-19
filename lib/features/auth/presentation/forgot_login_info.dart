@@ -116,69 +116,75 @@ class _ForgotLoginInfoScreenState extends ConsumerState<ForgotLoginInfoScreen> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 children: [
-                  const SizedBox(height: 80),
-                  SvgPicture.asset(
-                    'assets/images/betchya_logo_white.svg',
-                    height: 100,
+                  Container(
+                    padding: const EdgeInsets.only(top: 80),
+                    child: SvgPicture.asset(
+                      'assets/images/betchya_logo_white.svg',
+                      height: 100,
+                    ),
                   ),
-                  const SizedBox(height: 56),
-                  TextField(
-                    onChanged: controller.emailChanged,
-                    keyboardType: TextInputType.emailAddress,
-                    style: const TextStyle(color: Colors.black),
-                    decoration: InputDecoration(
-                      filled: true,
-                      fillColor: Colors.white,
-                      hintText: 'Email',
-                      hintStyle: const TextStyle(color: Colors.grey),
-                      errorText: state.email.invalid ? 'Invalid email' : null,
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(10),
-                        borderSide: BorderSide.none,
-                      ),
-                      contentPadding: const EdgeInsets.symmetric(
-                        vertical: 16,
-                        horizontal: 16,
+                  Container(
+                    padding: const EdgeInsets.only(top: 56),
+                    child: TextField(
+                      onChanged: controller.emailChanged,
+                      keyboardType: TextInputType.emailAddress,
+                      style: const TextStyle(color: Colors.black),
+                      decoration: InputDecoration(
+                        filled: true,
+                        fillColor: Colors.white,
+                        hintText: 'Email',
+                        hintStyle: const TextStyle(color: Colors.grey),
+                        errorText: state.email.invalid ? 'Invalid email' : null,
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                          borderSide: BorderSide.none,
+                        ),
+                        contentPadding: const EdgeInsets.symmetric(
+                          vertical: 16,
+                          horizontal: 16,
+                        ),
                       ),
                     ),
                   ),
-                  const SizedBox(height: 12),
-                  Stack(
-                    alignment: Alignment.centerRight,
-                    children: [
-                      TextField(
-                        controller: _dobController,
-                        onChanged: controller.dobChanged,
-                        keyboardType: TextInputType.datetime,
-                        obscureText: state.dobObscured,
-                        style: const TextStyle(color: Colors.black),
-                        decoration: InputDecoration(
-                          filled: true,
-                          fillColor: Colors.white,
-                          hintText: 'Date of Birth (mm/dd/yyyy)',
-                          hintStyle: const TextStyle(color: Colors.grey),
-                          errorText: state.dob.invalid ? 'Invalid date of birth' : null,
-                          border: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(10),
-                            borderSide: BorderSide.none,
-                          ),
-                          contentPadding: const EdgeInsets.symmetric(
-                            vertical: 16,
-                            horizontal: 16,
-                          ),
-                          suffixIcon: TextButton(
-                            onPressed: controller.toggleDobObscured,
-                            child: Text(
-                              state.dobObscured ? 'Show' : 'Hide',
-                              style: const TextStyle(color: Colors.grey, fontWeight: FontWeight.bold),
+                  Container(
+                    padding: const EdgeInsets.only(top: 12),
+                    child: Stack(
+                      alignment: Alignment.centerRight,
+                      children: [
+                        TextField(
+                          controller: _dobController,
+                          onChanged: controller.dobChanged,
+                          keyboardType: TextInputType.datetime,
+                          obscureText: state.dobObscured,
+                          style: const TextStyle(color: Colors.black),
+                          decoration: InputDecoration(
+                            filled: true,
+                            fillColor: Colors.white,
+                            hintText: 'Date of Birth (mm/dd/yyyy)',
+                            hintStyle: const TextStyle(color: Colors.grey),
+                            errorText: state.dob.invalid ? 'Invalid date of birth' : null,
+                            border: OutlineInputBorder(
+                              borderRadius: BorderRadius.circular(10),
+                              borderSide: BorderSide.none,
+                            ),
+                            contentPadding: const EdgeInsets.symmetric(
+                              vertical: 16,
+                              horizontal: 16,
+                            ),
+                            suffixIcon: TextButton(
+                              onPressed: controller.toggleDobObscured,
+                              child: Text(
+                                state.dobObscured ? 'Show' : 'Hide',
+                                style: const TextStyle(color: Colors.grey, fontWeight: FontWeight.bold),
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-                  const SizedBox(height: 24),
-                  SizedBox(
+                  Container(
+                    padding: const EdgeInsets.only(top: 24),
                     width: double.infinity,
                     height: 56,
                     child: ElevatedButton(
@@ -207,26 +213,28 @@ class _ForgotLoginInfoScreenState extends ConsumerState<ForgotLoginInfoScreen> {
                     ),
                   ),
                   if (state.error != null)
-                    Padding(
+                    Container(
                       padding: const EdgeInsets.only(top: 12),
                       child: Text(
                         state.error!,
                         style: const TextStyle(color: Colors.red),
                       ),
                     ),
-                  const SizedBox(height: 24),
-                  GestureDetector(
-                    onTap: () {
-                      Navigator.of(context).pop();
-                    },
-                    child: const Text(
-                      'Back to Login',
-                      style: TextStyle(
-                        color: Colors.white70,
-                        decoration: TextDecoration.underline,
-                        fontSize: 15,
+                  Container(
+                    padding: const EdgeInsets.only(top: 24),
+                    child: GestureDetector(
+                      onTap: () {
+                        Navigator.of(context).pop();
+                      },
+                      child: const Text(
+                        'Back to Login',
+                        style: TextStyle(
+                          color: Colors.white70,
+                          decoration: TextDecoration.underline,
+                          fontSize: 15,
+                        ),
+                        textAlign: TextAlign.center,
                       ),
-                      textAlign: TextAlign.center,
                     ),
                   ),
                 ],
