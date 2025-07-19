@@ -4,5 +4,12 @@ linter:
     public_member_api_docs: false
 analyzer:
   exclude:
+    - mock_server/**
     - .dart_frog/**
-    - .dart_tool/**
+    - "**/*.g.dart"
+    - "**/*.freezed.dart"
+    - "**/generated_plugin_registrant.dart"
+    - "lib/src/l10n/arb/**"
+    - "coverage/**"
+    - "build/**"
+    - ".dart_tool/**"

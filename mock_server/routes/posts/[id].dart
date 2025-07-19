@@ -1,3 +1,5 @@
+// ignore_for_file: file_names
+
 import 'package:dart_frog/dart_frog.dart';
 
 Response onRequest(RequestContext context, String id) {
