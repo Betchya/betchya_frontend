@@ -13,7 +13,9 @@
         "--flavor",
         "development",
         "--target",
-        "lib/main_development.dart"
+        "lib/main_development.dart",
+        "--dart-define=SUPABASE_URL=https://lswynrepnphdntrsjkzp.supabase.co",
+        "--dart-define=SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imxzd3lucmVwbnBoZG50cnNqa3pwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTkwODA2NTIsImV4cCI6MjAzNDY1NjY1Mn0.2QSyjMNX4RVZUZmxkIctiq0OPkTcbVL4VLSseUsFzlg"
       ]
     },
     {
@@ -21,7 +23,14 @@
       "request": "launch",
       "type": "dart",
       "program": "lib/main_staging.dart",
-      "args": ["--flavor", "staging", "--target", "lib/main_staging.dart"]
+      "args": [
+        "--flavor",
+        "staging",
+        "--target",
+        "lib/main_staging.dart",
+        "--dart-define=SUPABASE_URL=https://lswynrepnphdntrsjkzp.supabase.co",
+        "--dart-define=SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imxzd3lucmVwbnBoZG50cnNqa3pwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTkwODA2NTIsImV4cCI6MjAzNDY1NjY1Mn0.2QSyjMNX4RVZUZmxkIctiq0OPkTcbVL4VLSseUsFzlg"
+      ]
     },
     {
       "name": "Launch production",
