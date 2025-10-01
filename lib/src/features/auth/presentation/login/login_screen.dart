@@ -1,4 +1,5 @@
 import 'package:betchya_frontend/src/features/auth/presentation/auth_provider.dart';
+import 'package:betchya_frontend/src/features/auth/presentation/login/forgot_login_info.dart';
 import 'package:betchya_frontend/src/features/auth/presentation/login/login_form_controller.dart';
 import 'package:betchya_frontend/src/routing/app_router.dart';
 import 'package:flutter/material.dart';
@@ -7,7 +8,6 @@ import 'package:flutter_svg/flutter_svg.dart';
 import 'package:formz/formz.dart';
 import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:betchya_frontend/features/auth/presentation/forgot_login_info.dart';
 
 class LoginScreen extends ConsumerWidget {
   const LoginScreen({super.key});
