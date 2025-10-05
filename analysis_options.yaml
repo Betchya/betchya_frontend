@@ -2,3 +2,14 @@ include: package:very_good_analysis/analysis_options.6.0.0.yaml
 linter:
   rules:
     public_member_api_docs: false
+analyzer:
+  exclude:
+    - mock_server/**
+    - .dart_frog/**
+    - "**/*.g.dart"
+    - "**/*.freezed.dart"
+    - "**/generated_plugin_registrant.dart"
+    - "lib/src/l10n/arb/**"
+    - "coverage/**"
+    - "build/**"
+    - ".dart_tool/**"
