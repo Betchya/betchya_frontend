@@ -21,6 +21,7 @@ dependencies:
 
 dev_dependencies:
   build_runner: ^2.4.8
+  flutter_native_splash: ^2.4.6
   flutter_test:
     sdk: flutter
   mocktail: ^1.0.4
@@ -28,10 +29,14 @@ dev_dependencies:
   shared_preferences: ^2.5.3
   very_good_analysis: ^6.0.0
 
+flutter_native_splash:
+  color: "#2C1D57"
+  image: assets/images/home_final.png
+
 flutter:
   uses-material-design: true
   generate: true
 
   assets:
-    - assets/images/betchya_logo_white.svg
+    - assets/images/
     - assets/icons/
