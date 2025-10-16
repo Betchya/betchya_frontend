@@ -1,4 +1,5 @@
 import 'package:betchya_frontend/src/features/auth/presentation/auth_provider.dart';
+import 'package:betchya_frontend/src/features/auth/presentation/login/forgot_login_info.dart';
 import 'package:betchya_frontend/src/features/auth/presentation/login/login_form_controller.dart';
 import 'package:betchya_frontend/src/routing/app_router.dart';
 import 'package:flutter/material.dart';
@@ -185,7 +186,11 @@ class _LoginScreenContentState extends ConsumerState<_LoginScreenContent> {
         GestureDetector(
           key: const Key('login_forgot_info'),
           onTap: () {
-            // TODO(josh-sanford): Implement forgot login info navigation
+            Navigator.of(context).push(
+              MaterialPageRoute<Widget>(
+                builder: (context) => const ForgotLoginInfoScreen(),
+              ),
+            );
           },
           child: const Text(
             'Forgot Your Login Info?',
