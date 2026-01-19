@@ -11,6 +11,7 @@
 .svn/
 .swiftpm/
 migrate_working_dir/
+*.backup
 
 # IntelliJ related
 *.iml
@@ -57,6 +58,8 @@ unlinked_spec.ds
 **/android/app/profile
 **/android/app/release
 *.jks
+# Temporary/original image files
+**/android/**/Group*.png
 
 # iOS/XCode related
 **/ios/**/*.mode1v3
