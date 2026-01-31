@@ -38,7 +38,8 @@ class DateOfBirthInput extends FormzInput<String, DateOfBirthValidationError> {
       }
       
       // Check if the person is at least 13 years old (reasonable minimum age)
-      final thirteenYearsAgo = DateTime.now().subtract(const Duration(days: 365 * 13));
+      final thirteenYearsAgo =
+          DateTime.now().subtract(const Duration(days: 365 * 13));
       if (date.isAfter(thirteenYearsAgo)) {
         return DateOfBirthValidationError.invalid;
       }

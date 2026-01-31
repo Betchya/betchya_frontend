@@ -1,9 +1,9 @@
+import 'package:betchya_frontend/src/features/auth/presentation/login/forgot_login_info_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:formz/formz.dart';
-import 'package:betchya_frontend/src/features/auth/presentation/login/forgot_login_info_controller.dart';
 
 class DateInputFormatter extends TextInputFormatter {
   @override
@@ -12,33 +12,35 @@ class DateInputFormatter extends TextInputFormatter {
     TextEditingValue newValue,
   ) {
     final text = newValue.text;
-    
+
     // Remove all non-digit characters
     final digitsOnly = text.replaceAll(RegExp(r'[^\d]'), '');
-    
+
     // Limit to 8 digits (MMDDYYYY)
-    final limitedDigits = digitsOnly.length > 8 
-        ? digitsOnly.substring(0, 8) 
-        : digitsOnly;
-    
+    final limitedDigits =
+        digitsOnly.length > 8 ? digitsOnly.substring(0, 8) : digitsOnly;
+
     // Format with slashes
-    String formatted = '';
-    if (limitedDigits.length >= 1) {
+    var formatted = '';
+    if (limitedDigits.isNotEmpty) {
       formatted = limitedDigits.substring(0, 1);
     }
     if (limitedDigits.length >= 2) {
       formatted = '${limitedDigits.substring(0, 2)}/';
     }
     if (limitedDigits.length >= 3) {
-      formatted = '${limitedDigits.substring(0, 2)}/${limitedDigits.substring(2, 3)}';
+      formatted =
+          '${limitedDigits.substring(0, 2)}/${limitedDigits.substring(2, 3)}';
     }
     if (limitedDigits.length >= 4) {
-      formatted = '${limitedDigits.substring(0, 2)}/${limitedDigits.substring(2, 4)}/';
+      formatted =
+          '${limitedDigits.substring(0, 2)}/${limitedDigits.substring(2, 4)}/';
     }
     if (limitedDigits.length >= 5) {
-      formatted = '${limitedDigits.substring(0, 2)}/${limitedDigits.substring(2, 4)}/${limitedDigits.substring(4)}';
+      formatted =
+          '${limitedDigits.substring(0, 2)}/${limitedDigits.substring(2, 4)}/${limitedDigits.substring(4)}';
     }
-    
+
     return TextEditingValue(
       text: formatted,
       selection: TextSelection.collapsed(offset: formatted.length),
@@ -54,15 +56,17 @@ class ForgotLoginInfoScreen extends ConsumerWidget {
     return Scaffold(
       backgroundColor: const Color(0xFF22124B),
       body: SafeArea(
-        child: Center(
-          child: GestureDetector(
-            onHorizontalDragEnd: (details) {
-              if (details.primaryVelocity != null && details.primaryVelocity! > 0) {
-                Navigator.of(context).pop();
-              }
-            },
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+                        child: Center(
+                          child: GestureDetector(
+                            key: const Key('forgot_login_gesture_detector'),
+                            behavior: HitTestBehavior.opaque,
+                            onHorizontalDragEnd: (details) {
+                              if (details.primaryVelocity != null &&
+                                  details.primaryVelocity! > 0) {
+                                Navigator.of(context).pop();
+                              }
+                            },
+                            child: SingleChildScrollView(              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
               child: _ForgotLoginInfoScreenContent(),
             ),
           ),
@@ -74,10 +78,12 @@ class ForgotLoginInfoScreen extends ConsumerWidget {
 
 class _ForgotLoginInfoScreenContent extends ConsumerStatefulWidget {
   @override
-  ConsumerState<_ForgotLoginInfoScreenContent> createState() => _ForgotLoginInfoScreenContentState();
+  ConsumerState<_ForgotLoginInfoScreenContent> createState() =>
+      _ForgotLoginInfoScreenContentState();
 }
 
-class _ForgotLoginInfoScreenContentState extends ConsumerState<_ForgotLoginInfoScreenContent> {
+class _ForgotLoginInfoScreenContentState
+    extends ConsumerState<_ForgotLoginInfoScreenContent> {
   final _dobController = TextEditingController();
 
   @override
@@ -86,29 +92,32 @@ class _ForgotLoginInfoScreenContentState extends ConsumerState<_ForgotLoginInfoS
     super.dispose();
   }
 
-  Future<void> _showDatePicker(BuildContext context, ForgotLoginInfoController controller) async {
-    final DateTime? picked = await showDatePicker(
+  Future<void> _showDatePicker(
+    BuildContext context,
+    ForgotLoginInfoController controller,
+  ) async {
+    final picked = await showDatePicker(
       context: context,
-      initialDate: DateTime.now().subtract(const Duration(days: 365 * 25)), // Default to 25 years ago
+      initialDate: DateTime.now()
+          .subtract(const Duration(days: 365 * 25)), // Default to 25 years ago
       firstDate: DateTime(1900),
-      lastDate: DateTime.now().subtract(const Duration(days: 365 * 18)), // Minimum 18 years old
+      lastDate: DateTime.now()
+          .subtract(const Duration(days: 365 * 18)), // Minimum 18 years old
       builder: (context, child) {
         return Theme(
           data: Theme.of(context).copyWith(
             colorScheme: const ColorScheme.light(
               primary: Color(0xFF1DD6C1),
-              onPrimary: Colors.white,
-              surface: Colors.white,
-              onSurface: Colors.black,
             ),
           ),
           child: child!,
         );
       },
     );
-    
+
     if (picked != null) {
-      final String formattedDate = '${picked.month.toString().padLeft(2, '0')}/${picked.day.toString().padLeft(2, '0')}/${picked.year}';
+      final formattedDate =
+          '${picked.month.toString().padLeft(2, '0')}/${picked.day.toString().padLeft(2, '0')}/${picked.year}';
       _dobController.text = formattedDate;
       controller.dobChanged(formattedDate);
     }
@@ -119,10 +128,10 @@ class _ForgotLoginInfoScreenContentState extends ConsumerState<_ForgotLoginInfoS
     final formState = ref.watch(forgotLoginInfoControllerProvider);
     final formController = ref.read(forgotLoginInfoControllerProvider.notifier);
     final submissionState = ref.watch(forgotLoginInfoSubmissionStateProvider);
-    
+
     // Listen for success state
     ref.listen(forgotLoginInfoSubmissionStateProvider, (previous, next) {
-      if (next?.hasValue == true) {
+      if (next?.hasValue ?? false) {
         // Show success message and navigate back
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
@@ -133,11 +142,11 @@ class _ForgotLoginInfoScreenContentState extends ConsumerState<_ForgotLoginInfoS
         Navigator.of(context).pop();
       }
     });
-    
+
     if (_dobController.text != formState.dob.value) {
       _dobController.text = formState.dob.value;
     }
-    
+
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
@@ -174,7 +183,7 @@ class _ForgotLoginInfoScreenContentState extends ConsumerState<_ForgotLoginInfoS
           key: const Key('forgot_login_dob_field'),
           controller: _dobController,
           onChanged: formController.dobChanged,
-          keyboardType: TextInputType.numberWithOptions(decimal: false),
+          keyboardType: TextInputType.number,
           obscureText: formState.dobObscured,
           inputFormatters: [DateInputFormatter()],
           decoration: InputDecoration(
@@ -201,7 +210,10 @@ class _ForgotLoginInfoScreenContentState extends ConsumerState<_ForgotLoginInfoS
                   onPressed: formController.toggleDobObscured,
                   child: Text(
                     formState.dobObscured ? 'Show' : 'Hide',
-                    style: const TextStyle(color: Colors.grey, fontWeight: FontWeight.bold),
+                    style: const TextStyle(
+                      color: Colors.grey,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
               ],
@@ -216,7 +228,8 @@ class _ForgotLoginInfoScreenContentState extends ConsumerState<_ForgotLoginInfoS
           child: ElevatedButton(
             key: const Key('forgot_login_submit_button'),
             style: ElevatedButton.styleFrom(
-              backgroundColor: formState.status == FormzStatus.valid && submissionState?.isLoading != true
+              backgroundColor: formState.status == FormzStatus.valid &&
+                      (submissionState?.isLoading ?? false) != true
                   ? const Color(0xFF1DD6C1)
                   : const Color(0x801DD6C1),
               disabledBackgroundColor: const Color(0x801DD6C1),
@@ -224,25 +237,36 @@ class _ForgotLoginInfoScreenContentState extends ConsumerState<_ForgotLoginInfoS
                 borderRadius: BorderRadius.circular(8),
               ),
             ),
-            onPressed: formState.status == FormzStatus.valid && submissionState?.isLoading != true
+            onPressed: formState.status == FormzStatus.valid &&
+                    (submissionState?.isLoading ?? false) != true
                 ? () async {
                     formController.validateAll();
                     if (formState.status == FormzStatus.valid) {
                       // Set loading state
-                      ref.read(forgotLoginInfoSubmissionStateProvider.notifier).state = const AsyncValue.loading();
-                      
+                      ref
+                          .read(forgotLoginInfoSubmissionStateProvider.notifier)
+                          .state = const AsyncValue.loading();
+
                       try {
                         await formController.submit();
                         // Set success state
-                        ref.read(forgotLoginInfoSubmissionStateProvider.notifier).state = const AsyncValue.data(null);
+                        ref
+                            .read(
+                              forgotLoginInfoSubmissionStateProvider.notifier,
+                            )
+                            .state = const AsyncValue.data(null);
                       } catch (e) {
                         // Set error state
-                        ref.read(forgotLoginInfoSubmissionStateProvider.notifier).state = AsyncValue.error(e, StackTrace.current);
+                        ref
+                            .read(
+                              forgotLoginInfoSubmissionStateProvider.notifier,
+                            )
+                            .state = AsyncValue.error(e, StackTrace.current);
                       }
                     }
                   }
                 : null,
-            child: submissionState?.isLoading == true
+            child: (submissionState?.isLoading ?? false)
                 ? const CircularProgressIndicator(color: Colors.white)
                 : const Text(
                     'Submit',
@@ -254,7 +278,7 @@ class _ForgotLoginInfoScreenContentState extends ConsumerState<_ForgotLoginInfoS
                   ),
           ),
         ),
-        if (submissionState?.hasError == true) ...[
+        if (submissionState?.hasError ?? false) ...[
           const SizedBox(height: 12),
           Text(
             submissionState!.error.toString(),
