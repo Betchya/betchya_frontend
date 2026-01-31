@@ -1,4 +1,5 @@
 import 'package:betchya_frontend/src/features/auth/presentation/auth_provider.dart';
+import 'package:betchya_frontend/src/features/auth/presentation/login/forgot_login_info.dart';
 import 'package:betchya_frontend/src/features/auth/presentation/login/login_screen.dart';
 import 'package:betchya_frontend/src/features/auth/presentation/signup/signup_screen.dart';
 import 'package:betchya_frontend/src/features/home/presentation/home_screen.dart';
@@ -10,6 +11,7 @@ enum AppRoute {
   home,
   login,
   signUp,
+  forgotLogin,
 }
 
 // TODO(Josh-Sanford): add protected/authOnly routes as sets later if needed
@@ -54,6 +56,11 @@ final goRouterProvider = Provider<GoRouter>((ref) {
             path: 'signUp',
             name: AppRoute.signUp.name,
             builder: (context, state) => const SignUpScreen(),
+          ),
+          GoRoute(
+            path: 'forgot',
+            name: AppRoute.forgotLogin.name,
+            builder: (context, state) => const ForgotLoginInfoScreen(),
           ),
         ],
       ),
