@@ -32,6 +32,7 @@ void main() {
     mockRouter = MockGoRouter();
     // Set initial state
     when(() => authRepository.currentUser).thenReturn(null);
+    when(() => mockRouter.pushNamed(any())).thenAnswer((_) async => null);
   });
 
   Future<void> pumpLoginScreen(WidgetTester tester) async {
