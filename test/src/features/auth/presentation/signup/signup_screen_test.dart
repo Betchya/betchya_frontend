@@ -6,7 +6,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mocktail/mocktail.dart';
 
-import '../../robots/auth_robot.dart';
+import '../../../../robots/auth_robot.dart';
 
 class MockAuthRepository extends Mock implements AuthRepository {}
 
@@ -107,8 +107,9 @@ void main() {
           email: any(named: 'email'),
           password: any(named: 'password'),
         ),
-      ).thenAnswer((_) async =>
-          null); // Return null User? or valid User? Cubit ignores return
+      ).thenAnswer(
+        (_) async => null,
+      ); // Return null User? or valid User? Cubit ignores return
 
       await pumpSignupScreen(tester);
 
@@ -173,31 +174,22 @@ void main() {
   testWidgets('toggling the consent checkbox updates its value',
       (tester) async {
     await pumpSignupScreen(tester);
+
     // Find the consent checkbox
     final checkbox = find.byType(Checkbox).first;
     expect(checkbox, findsOneWidget);
-    // Tap to toggle consent
+
+    // Initially true (default state)
+    // Tap to toggle consent -> false
     await tester.tap(checkbox);
     await tester.pumpAndSettle();
-    // Should be checked now (logic might flip it, let's check)
-    final checkedBox = tester.widget<Checkbox>(checkbox);
-    // Logic: initially true (from state), toggle -> false?
-    // Wait, SignUpState default consent = true.
-    // If I tap it, it becomes false.
-    // Let's check logic.
-    // Original test said "Should be checked now".
-    // If default is false, tap -> true.
-    // My SignUpState: this.consent = true.
-    // So tap -> false.
-    // We should expect it to be false? Or verify it changed.
 
-    // Let's verify it toggles.
-    expect(checkedBox.value, isFalse);
+    expect(tester.widget<Checkbox>(checkbox).value, isFalse);
 
-    // Tap again
-    await tester.tap(find.byType(Checkbox).first);
+    // Tap again -> true
+    await tester.tap(checkbox);
     await tester.pumpAndSettle();
-    expect(tester.widget<Checkbox>(find.byType(Checkbox).first).value, isTrue);
+    expect(tester.widget<Checkbox>(checkbox).value, isTrue);
   });
 
   testWidgets('social sign-up button is tappable', (tester) async {

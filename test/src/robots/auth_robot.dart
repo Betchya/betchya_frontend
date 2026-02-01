@@ -44,6 +44,12 @@ class AuthRobot {
     }
   }
 
+  Future<void> tapCreateAccountButton() async {
+    final createAccountButton = find.byKey(const Key('login_create_account'));
+    await tester.tap(createAccountButton);
+    await tester.pumpAndSettle();
+  }
+
   // --- Signup ---
   Future<void> enterFullName(String name) async {
     final fullNameField = find.byKey(const Key('signup_full_name_field'));
