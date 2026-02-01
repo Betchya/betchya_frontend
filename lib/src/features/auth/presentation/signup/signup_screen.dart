@@ -28,15 +28,12 @@ class SignUpView extends StatelessWidget {
     return BlocListener<SignUpCubit, SignUpState>(
       listener: (context, state) {
         if (state.status == FormzSubmissionStatus.success) {
-          // Navigation is handled by AppRouter listening to AuthBloc,
-          // but if we want to show a success message or handle specific navigation:
-          // In this architecture, AuthBloc listening to AuthRepository logic usually handles
-          // key auth state changes. However, SignUp might not auto-login depending on implementation.
-          // The previous code navigated on success.
-          // Wait, AuthRepository.signUp updates the user? Yes, usually.
-          // If Supabase signs in immediately, AuthBloc will see it and redirect.
-          // If not (e.g. email confirmation), we might stay here or show a dialog.
-          // For now, assuming standard flow where auth state change handles it.
+          // Navigation is handled by AppRouter listening to AuthBloc.
+          // In this architecture, AuthBloc usually handles key auth state
+          // changes. However, SignUp might not auto-login depending on
+          // implementation. If Supabase signs in immediately, AuthBloc will
+          // see it and redirect. For now, assuming standard flow where auth
+          // state change handles it.
         }
         if (state.status == FormzSubmissionStatus.failure) {
           ScaffoldMessenger.of(context)

@@ -1,8 +1,8 @@
 import 'package:auth_repository/auth_repository.dart';
-import 'package:betchya_frontend/src/features/auth/presentation/login/cubit/login_cubit.dart';
-import 'package:betchya_frontend/src/features/auth/presentation/login/cubit/login_state.dart';
 import 'package:betchya_frontend/src/features/auth/domain/email_input.dart';
 import 'package:betchya_frontend/src/features/auth/domain/password_input.dart';
+import 'package:betchya_frontend/src/features/auth/presentation/login/cubit/login_cubit.dart';
+import 'package:betchya_frontend/src/features/auth/presentation/login/cubit/login_state.dart';
 import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:formz/formz.dart';
@@ -60,7 +60,7 @@ void main() {
         act: (cubit) => cubit.passwordChanged(''),
         expect: () => [
           const LoginState(
-            password: PasswordInput.dirty(''),
+            password: PasswordInput.dirty(),
           ),
         ],
       );

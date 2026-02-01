@@ -67,7 +67,8 @@ void main() {
 
       await pumpRouter(tester, authBloc: mockAuthBloc);
 
-      // Initial route defaults to / which redirects to /login for unauthenticated
+      // Initial route defaults to / which redirects to /login for
+      // unauthenticated
       expect(find.byType(LoginScreen), findsOneWidget);
     });
 

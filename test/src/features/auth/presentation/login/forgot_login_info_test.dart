@@ -1,5 +1,4 @@
 import 'package:auth_repository/auth_repository.dart';
-
 import 'package:betchya_frontend/src/features/auth/presentation/login/forgot_login_info.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -142,9 +141,10 @@ void main() {
       expect(find.byType(DatePickerDialog), findsNothing);
     });
 
-    // Note: 'updates text field when date is picked' skipped or adapted because
-    // interaction with native DatePicker in tests can be flaky or require overly
-    // specific mocking. But the basic flow is covered by checking the dialog opens.
+    // Note: 'updates text field when date is picked' skipped or adapted.
+    // Interaction with native DatePicker in tests can be flaky or require
+    // overly specific mocking.
+    // The basic flow is covered by checking the dialog opens.
 
     testWidgets('toggles DOB visibility', (tester) async {
       await pumpScreen(tester);
@@ -173,8 +173,9 @@ void main() {
       // But 'pumpScreen' creates a fresh Cubit inside BlocProvider (in UI).
       // To test this properly, we should test the CUBIT separately (unit test)
       // and the UI via interaction.
-      // However, verifying that the field updates when the user types is covered by
-      // "submit button is enabled when form is valid" test which types into the field.
+      // However, verifying that the field updates when the user types is
+      // covered by "submit button is enabled when form is valid" test which
+      // types into the field.
     });
 
     testWidgets('DateInputFormatter unit test', (tester) async {

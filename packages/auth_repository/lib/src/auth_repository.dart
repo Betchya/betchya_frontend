@@ -6,7 +6,7 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 class AuthRepository {
   /// {@macro auth_repository}
   const AuthRepository({required SupabaseClient supabaseClient})
-    : _supabaseClient = supabaseClient;
+      : _supabaseClient = supabaseClient;
 
   final SupabaseClient _supabaseClient;
 

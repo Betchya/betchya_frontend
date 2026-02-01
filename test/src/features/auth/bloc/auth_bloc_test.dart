@@ -17,7 +17,7 @@ void main() {
       authRepository = MockAuthRepository();
       user = MockUser();
       when(() => authRepository.authStateChanges)
-          .thenAnswer((_) => Stream.empty());
+          .thenAnswer((_) => const Stream.empty());
       when(() => authRepository.currentUser).thenReturn(null);
     });
 
