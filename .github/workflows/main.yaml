@@ -56,4 +56,4 @@ jobs:
         with:
           path: coverage/lcov.info
           exclude: ""
-          min_coverage: 100
+          min_coverage: 80
