@@ -43,7 +43,7 @@ class ForgotLoginCubit extends Cubit<ForgotLoginState> {
     } catch (e) {
       emit(
         state.copyWith(
-          errorMessage: e.toString(),
+          errorMessage: () => e.toString(),
           status: FormzSubmissionStatus.failure,
         ),
       );

@@ -26,7 +26,7 @@ class ForgotLoginState extends Equatable {
     FormzSubmissionStatus? status,
     bool? dobObscured,
     bool? isValid,
-    String? errorMessage,
+    String? Function()? errorMessage,
   }) {
     return ForgotLoginState(
       email: email ?? this.email,
@@ -34,7 +34,7 @@ class ForgotLoginState extends Equatable {
       status: status ?? this.status,
       dobObscured: dobObscured ?? this.dobObscured,
       isValid: isValid ?? this.isValid,
-      errorMessage: errorMessage ?? this.errorMessage,
+      errorMessage: errorMessage != null ? errorMessage() : this.errorMessage,
     );
   }
 

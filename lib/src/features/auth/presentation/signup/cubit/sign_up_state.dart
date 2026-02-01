@@ -34,7 +34,7 @@ class SignUpState extends Equatable {
     bool? consent,
     FormzSubmissionStatus? status,
     bool? isValid,
-    String? errorMessage,
+    String? Function()? errorMessage,
   }) {
     return SignUpState(
       fullName: fullName ?? this.fullName,
@@ -44,7 +44,7 @@ class SignUpState extends Equatable {
       consent: consent ?? this.consent,
       status: status ?? this.status,
       isValid: isValid ?? this.isValid,
-      errorMessage: errorMessage ?? this.errorMessage,
+      errorMessage: errorMessage != null ? errorMessage() : this.errorMessage,
     );
   }
 

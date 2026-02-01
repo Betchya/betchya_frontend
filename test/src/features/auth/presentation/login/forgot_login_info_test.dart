@@ -177,12 +177,6 @@ void main() {
       // "submit button is enabled when form is valid" test which types into the field.
     });
 
-    testWidgets('calls submit on cubit when button is pressed', (tester) async {
-      // Ideally we would mock the Cubit to verify the submit call.
-      // For this migration validation, ensuring the button is enabled and tappable
-      // is a good enough integration check.
-    });
-
     testWidgets('DateInputFormatter unit test', (tester) async {
       final formatter = DateInputFormatter();
       const oldValue = TextEditingValue.empty;
