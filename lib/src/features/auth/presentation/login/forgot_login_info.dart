@@ -20,12 +20,14 @@ class DateInputFormatter extends TextInputFormatter {
     final limitedDigits =
         digitsOnly.length > 8 ? digitsOnly.substring(0, 8) : digitsOnly;
 
-    // Format with slashes based on current length to avoid confusing intermediate states
+    // Format with slashes based on length to avoid confusing intermediate
+    // states
     String formatted;
     if (limitedDigits.isEmpty) {
       formatted = '';
     } else if (limitedDigits.length <= 2) {
-      // Up to 2 digits: just show month, no trailing slash yet (e.g., "1", "12")
+      // Up to 2 digits: just show month, no trailing slash yet
+      // (e.g., "1", "12")
       formatted = limitedDigits;
     } else if (limitedDigits.length <= 4) {
       // 3–4 digits: MM/D or MM/DD
@@ -48,20 +50,23 @@ class DateInputFormatter extends TextInputFormatter {
 class ForgotLoginInfoScreen extends ConsumerWidget {
   const ForgotLoginInfoScreen({super.key});
 
-    @override
-    Widget build(BuildContext context, WidgetRef ref) {
-      return Scaffold(
-        body: SafeArea(
-          child: Center(
-            child: GestureDetector(                            key: const Key('forgot_login_gesture_detector'),
-                            behavior: HitTestBehavior.opaque,
-                            onHorizontalDragEnd: (details) {
-                              if (details.primaryVelocity != null &&
-                                  details.primaryVelocity! > 0) {
-                                Navigator.of(context).pop();
-                              }
-                            },
-                            child: SingleChildScrollView(              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    return Scaffold(
+      backgroundColor: const Color(0xFF22124B),
+      body: SafeArea(
+        child: Center(
+          child: GestureDetector(
+            key: const Key('forgot_login_gesture_detector'),
+            behavior: HitTestBehavior.opaque,
+            onHorizontalDragEnd: (details) {
+              if (details.primaryVelocity != null &&
+                  details.primaryVelocity! > 0) {
+                Navigator.of(context).pop();
+              }
+            },
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
               child: _ForgotLoginInfoScreenContent(),
             ),
           ),
@@ -101,8 +106,8 @@ class _ForgotLoginInfoScreenContentState
       builder: (context, child) {
         return Theme(
           data: Theme.of(context).copyWith(
-            colorScheme: ColorScheme.light(
-              primary: Theme.of(context).colorScheme.primary,
+            colorScheme: const ColorScheme.light(
+              primary: Color(0xFF1DD6C1),
             ),
           ),
           child: child!,
@@ -125,26 +130,25 @@ class _ForgotLoginInfoScreenContentState
     final submissionState = ref.watch(forgotLoginInfoSubmissionStateProvider);
 
     // Listen for success state
-    ref.listen(forgotLoginInfoSubmissionStateProvider, (previous, next) {
-      if (next?.hasValue ?? false) {
-        // Show success message and navigate back
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Login information has been sent to your email'),
-            backgroundColor: Colors.green,
-          ),
-        );
-        Navigator.of(context).pop();
-      }
-    });
-
-    // Listen for DOB changes to update controller
-    ref.listen(forgotLoginInfoControllerProvider, (previous, next) {
-      if (previous?.dob.value != next.dob.value &&
-          _dobController.text != next.dob.value) {
-        _dobController.text = next.dob.value;
-      }
-    });
+    ref
+      ..listen(forgotLoginInfoSubmissionStateProvider, (previous, next) {
+        if (next?.hasValue ?? false) {
+          // Show success message and navigate back
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Login information has been sent to your email'),
+              backgroundColor: Colors.green,
+            ),
+          );
+          Navigator.of(context).pop();
+        }
+      })
+      ..listen(forgotLoginInfoControllerProvider, (previous, next) {
+        if (previous?.dob.value != next.dob.value &&
+            _dobController.text != next.dob.value) {
+          _dobController.text = next.dob.value;
+        }
+      });
 
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
@@ -226,6 +230,16 @@ class _ForgotLoginInfoScreenContentState
           height: 56,
           child: ElevatedButton(
             key: const Key('forgot_login_submit_button'),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: formState.status == FormzStatus.valid &&
+                      (submissionState?.isLoading ?? false) != true
+                  ? const Color(0xFF1DD6C1)
+                  : const Color(0x801DD6C1),
+              disabledBackgroundColor: const Color(0x801DD6C1),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
             onPressed: formState.status == FormzStatus.valid &&
                     (submissionState?.isLoading ?? false) != true
                 ? () async {
@@ -257,6 +271,7 @@ class _ForgotLoginInfoScreenContentState
                 : const Text(
                     'Submit',
                     style: TextStyle(
+                      color: Colors.white,
                       fontWeight: FontWeight.bold,
                       fontSize: 18,
                     ),
