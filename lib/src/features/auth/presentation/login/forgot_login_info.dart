@@ -68,7 +68,7 @@ class ForgotLoginInfoView extends StatelessWidget {
     return BlocListener<ForgotLoginCubit, ForgotLoginState>(
       listenWhen: (previous, current) => previous.status != current.status,
       listener: (context, state) {
-        if (state.status.isFailure) {
+        if (state.status == FormzSubmissionStatus.failure) {
           ScaffoldMessenger.of(context)
             ..hideCurrentSnackBar()
             ..showSnackBar(
@@ -77,7 +77,7 @@ class ForgotLoginInfoView extends StatelessWidget {
               ),
             );
         }
-        if (state.status.isSuccess) {
+        if (state.status == FormzSubmissionStatus.success) {
           // Use a root navigator or ensure context is valid if popping
           if (context.mounted) {
             ScaffoldMessenger.of(context)
@@ -105,9 +105,20 @@ class ForgotLoginInfoView extends StatelessWidget {
         ),
         body: SafeArea(
           child: Center(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
-              child: _ForgotLoginContent(),
+            child: GestureDetector(
+              key: const Key('forgot_login_gesture_detector'),
+              behavior: HitTestBehavior.opaque,
+              onHorizontalDragEnd: (details) {
+                if (details.primaryVelocity != null &&
+                    details.primaryVelocity! > 0) {
+                  Navigator.of(context).pop();
+                }
+              },
+              child: SingleChildScrollView(
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+                child: _ForgotLoginContent(),
+              ),
             ),
           ),
         ),
@@ -130,16 +141,12 @@ class _ForgotLoginContentState extends State<_ForgotLoginContent> {
     super.dispose();
   }
 
-  Future<void> _showDatePicker(
-    BuildContext context,
-  ) async {
+  Future<void> _showDatePicker(BuildContext context) async {
     final picked = await showDatePicker(
       context: context,
-      initialDate: DateTime.now()
-          .subtract(const Duration(days: 365 * 25)), // Default to 25 years ago
+      initialDate: DateTime.now().subtract(const Duration(days: 365 * 25)),
       firstDate: DateTime(1900),
-      lastDate: DateTime.now()
-          .subtract(const Duration(days: 365 * 18)), // Minimum 18 years old
+      lastDate: DateTime.now().subtract(const Duration(days: 365 * 18)),
       builder: (context, child) {
         return Theme(
           data: Theme.of(context).copyWith(
@@ -248,15 +255,6 @@ class _DobInput extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<ForgotLoginCubit, ForgotLoginState>(
       builder: (context, state) {
-        // Sync controller if state changed externally (though here it's mostly
-        // one way)
-        if (state.dob.value != controller.text &&
-            state.dob.value.isNotEmpty &&
-            !state.dob.isPure) {
-          // This creates a loop if not careful, but useful if we had initial
-          // data
-        }
-
         return TextField(
           key: const Key('forgot_login_dob_field'),
           controller: controller,
@@ -320,7 +318,7 @@ class _SubmitButton extends StatelessWidget {
             onPressed: state.isValid
                 ? () => context.read<ForgotLoginCubit>().submit()
                 : null,
-            child: state.status.isInProgress
+            child: state.status == FormzSubmissionStatus.inProgress
                 ? const CircularProgressIndicator(color: Colors.white)
                 : const Text(
                     'Submit',

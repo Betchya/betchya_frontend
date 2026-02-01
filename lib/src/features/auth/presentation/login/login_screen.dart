@@ -28,7 +28,7 @@ class LoginView extends StatelessWidget {
     return BlocListener<LoginCubit, LoginState>(
       listenWhen: (previous, current) => previous.status != current.status,
       listener: (context, state) {
-        if (state.status.isFailure) {
+        if (state.status == FormzSubmissionStatus.failure) {
           ScaffoldMessenger.of(context)
             ..hideCurrentSnackBar()
             ..showSnackBar(
@@ -185,7 +185,7 @@ class _LoginButton extends StatelessWidget {
                     context.read<LoginCubit>().logInWithCredentials();
                   }
                 : null,
-            child: state.status.isInProgress
+            child: state.status == FormzSubmissionStatus.inProgress
                 ? const CircularProgressIndicator(color: Colors.white)
                 : const Text(
                     'Login',

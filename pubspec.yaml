@@ -17,24 +17,29 @@ dependencies:
   flutter_localizations:
     sdk: flutter
   flutter_svg: ^2.0.17
-  formz: ^0.7.0
+  formz: ^0.8.0
   go_router: ^13.2.1
   intl: ^0.20.2
-  supabase_flutter: ^2.3.4
+  supabase_flutter: ^2.10.3
 
 dev_dependencies:
   bloc_test: ^10.0.0
   build_runner: ^2.4.8
+  flutter_native_splash: ^2.4.6
   flutter_test:
     sdk: flutter
   mocktail: ^1.0.4
   shared_preferences: ^2.5.3
   very_good_analysis: ^6.0.0
 
+flutter_native_splash:
+  color: "#2C1D57"
+  image: assets/images/home_final.png
+
 flutter:
   uses-material-design: true
   generate: true
 
   assets:
-    - assets/images/betchya_logo_white.svg
+    - assets/images/
     - assets/icons/

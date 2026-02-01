@@ -27,7 +27,7 @@ class SignUpView extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocListener<SignUpCubit, SignUpState>(
       listener: (context, state) {
-        if (state.status.isSuccess) {
+        if (state.status == FormzSubmissionStatus.success) {
           // Navigation is handled by AppRouter listening to AuthBloc,
           // but if we want to show a success message or handle specific navigation:
           // In this architecture, AuthBloc listening to AuthRepository logic usually handles
@@ -38,7 +38,7 @@ class SignUpView extends StatelessWidget {
           // If not (e.g. email confirmation), we might stay here or show a dialog.
           // For now, assuming standard flow where auth state change handles it.
         }
-        if (state.status.isFailure) {
+        if (state.status == FormzSubmissionStatus.failure) {
           ScaffoldMessenger.of(context)
             ..hideCurrentSnackBar()
             ..showSnackBar(
@@ -316,7 +316,7 @@ class _SignUpButton extends StatelessWidget {
                 borderRadius: BorderRadius.circular(8),
               ),
             ),
-            child: state.status.isInProgress
+            child: state.status == FormzSubmissionStatus.inProgress
                 ? const CircularProgressIndicator(color: Colors.white)
                 : const Text(
                     'Next',
