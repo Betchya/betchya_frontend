@@ -22,19 +22,11 @@ void main() {
         overrides: [
           authRepositoryProvider.overrideWithValue(authRepository),
         ],
-        child: MaterialApp(
-          initialRoute: '/',
-          routes: {
-            '/': (context) => const Scaffold(body: Text('Home Screen')),
-            '/forgot': (context) => const ForgotLoginInfoScreen(),
-          },
+        child: const MaterialApp(
+          home: ForgotLoginInfoScreen(),
         ),
       ),
     );
-    // Push the screen
-    await tester
-        .state<NavigatorState>(find.byType(Navigator))
-        .pushNamed('/forgot');
     await tester.pumpAndSettle();
   }
 
