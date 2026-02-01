@@ -185,7 +185,7 @@ class _LoginScreenContentState extends ConsumerState<_LoginScreenContent> {
         GestureDetector(
           key: const Key('login_forgot_info'),
           onTap: () {
-            // TODO(josh-sanford): Implement forgot login info navigation
+            context.pushNamed(AppRoute.forgotLogin.name);
           },
           child: const Text(
             'Forgot Your Login Info?',
