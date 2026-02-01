@@ -77,9 +77,6 @@ class ForgotLoginInfoController extends StateNotifier<ForgotLoginInfoState> {
       // TODO(author): Implement actual forgot login info API call
       // For now, simulate the call
       await Future<void>.delayed(const Duration(seconds: 1));
-
-      // Reset form on success
-      state = const ForgotLoginInfoState();
     } catch (e) {
       // Error handling will be managed by the AsyncValue pattern
       rethrow;

@@ -20,25 +20,22 @@ class DateInputFormatter extends TextInputFormatter {
     final limitedDigits =
         digitsOnly.length > 8 ? digitsOnly.substring(0, 8) : digitsOnly;
 
-    // Format with slashes
-    var formatted = '';
-    if (limitedDigits.isNotEmpty) {
-      formatted = limitedDigits.substring(0, 1);
-    }
-    if (limitedDigits.length >= 2) {
-      formatted = '${limitedDigits.substring(0, 2)}/';
-    }
-    if (limitedDigits.length >= 3) {
+    // Format with slashes based on current length to avoid confusing intermediate states
+    String formatted;
+    if (limitedDigits.isEmpty) {
+      formatted = '';
+    } else if (limitedDigits.length <= 2) {
+      // Up to 2 digits: just show month, no trailing slash yet (e.g., "1", "12")
+      formatted = limitedDigits;
+    } else if (limitedDigits.length <= 4) {
+      // 3–4 digits: MM/D or MM/DD
       formatted =
-          '${limitedDigits.substring(0, 2)}/${limitedDigits.substring(2, 3)}';
-    }
-    if (limitedDigits.length >= 4) {
+          '${limitedDigits.substring(0, 2)}/${limitedDigits.substring(2)}';
+    } else {
+      // 5–8 digits: MM/DD/YYYY...
+      final yearPart = limitedDigits.substring(4);
       formatted =
-          '${limitedDigits.substring(0, 2)}/${limitedDigits.substring(2, 4)}/';
-    }
-    if (limitedDigits.length >= 5) {
-      formatted =
-          '${limitedDigits.substring(0, 2)}/${limitedDigits.substring(2, 4)}/${limitedDigits.substring(4)}';
+          '${limitedDigits.substring(0, 2)}/${limitedDigits.substring(2, 4)}/$yearPart';
     }
 
     return TextEditingValue(
@@ -143,9 +140,13 @@ class _ForgotLoginInfoScreenContentState
       }
     });
 
-    if (_dobController.text != formState.dob.value) {
-      _dobController.text = formState.dob.value;
-    }
+    // Listen for DOB changes to update controller
+    ref.listen(forgotLoginInfoControllerProvider, (previous, next) {
+      if (previous?.dob.value != next.dob.value &&
+          _dobController.text != next.dob.value) {
+        _dobController.text = next.dob.value;
+      }
+    });
 
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
@@ -183,7 +184,7 @@ class _ForgotLoginInfoScreenContentState
           key: const Key('forgot_login_dob_field'),
           controller: _dobController,
           onChanged: formController.dobChanged,
-          keyboardType: TextInputType.number,
+          keyboardType: TextInputType.datetime,
           obscureText: formState.dobObscured,
           inputFormatters: [DateInputFormatter()],
           decoration: InputDecoration(
@@ -240,29 +241,26 @@ class _ForgotLoginInfoScreenContentState
             onPressed: formState.status == FormzStatus.valid &&
                     (submissionState?.isLoading ?? false) != true
                 ? () async {
-                    formController.validateAll();
-                    if (formState.status == FormzStatus.valid) {
-                      // Set loading state
-                      ref
-                          .read(forgotLoginInfoSubmissionStateProvider.notifier)
-                          .state = const AsyncValue.loading();
+                    // Set loading state
+                    ref
+                        .read(forgotLoginInfoSubmissionStateProvider.notifier)
+                        .state = const AsyncValue.loading();
 
-                      try {
-                        await formController.submit();
-                        // Set success state
-                        ref
-                            .read(
-                              forgotLoginInfoSubmissionStateProvider.notifier,
-                            )
-                            .state = const AsyncValue.data(null);
-                      } catch (e) {
-                        // Set error state
-                        ref
-                            .read(
-                              forgotLoginInfoSubmissionStateProvider.notifier,
-                            )
-                            .state = AsyncValue.error(e, StackTrace.current);
-                      }
+                    try {
+                      await formController.submit();
+                      // Set success state
+                      ref
+                          .read(
+                            forgotLoginInfoSubmissionStateProvider.notifier,
+                          )
+                          .state = const AsyncValue.data(null);
+                    } catch (e, stackTrace) {
+                      // Set error state
+                      ref
+                          .read(
+                            forgotLoginInfoSubmissionStateProvider.notifier,
+                          )
+                          .state = AsyncValue.error(e, stackTrace);
                     }
                   }
                 : null,
@@ -280,9 +278,9 @@ class _ForgotLoginInfoScreenContentState
         ),
         if (submissionState?.hasError ?? false) ...[
           const SizedBox(height: 12),
-          Text(
-            submissionState!.error.toString(),
-            style: const TextStyle(color: Colors.red),
+          const Text(
+            'Something went wrong. Please try again.',
+            style: TextStyle(color: Colors.red),
           ),
         ],
         const SizedBox(height: 24),

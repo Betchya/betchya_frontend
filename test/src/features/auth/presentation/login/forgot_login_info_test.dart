@@ -78,7 +78,7 @@ void main() {
         find.byKey(const Key('forgot_login_email_field')),
         'test@example.com',
       );
-      // Enter a valid date (must be > 13 years old, let's say 2000)
+      // Enter a valid date (must be at least 18 years old, let's say 2000)
       await tester.enterText(
         find.byKey(const Key('forgot_login_dob_field')),
         '01/01/2000',
@@ -101,17 +101,17 @@ void main() {
       await tester.enterText(dobField, '1');
       expect(find.text('1'), findsOneWidget);
 
-      // Test "12" -> "12/"
+      // Test "12" -> "12" (no slash yet)
       await tester.enterText(dobField, '12');
-      expect(find.text('12/'), findsOneWidget);
+      expect(find.text('12'), findsOneWidget);
 
       // Test "123" -> "12/3"
       await tester.enterText(dobField, '123');
       expect(find.text('12/3'), findsOneWidget);
 
-      // Test "1234" -> "12/34/"
+      // Test "1234" -> "12/34"
       await tester.enterText(dobField, '1234');
-      expect(find.text('12/34/'), findsOneWidget);
+      expect(find.text('12/34'), findsOneWidget);
 
       // Test "12345" -> "12/34/5"
       await tester.enterText(dobField, '12345');
@@ -227,8 +227,8 @@ void main() {
       );
 
       final result = formatter.formatEditUpdate(oldValue, newValue);
-      expect(result.text, '12/');
-      expect(result.selection.baseOffset, 3);
+      expect(result.text, '12');
+      expect(result.selection.baseOffset, 2);
     });
   });
 }
