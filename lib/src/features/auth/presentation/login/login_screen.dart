@@ -24,7 +24,6 @@ class LoginScreen extends ConsumerWidget {
     );
 
     return Scaffold(
-      backgroundColor: const Color(0xFF22124B),
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
@@ -121,16 +120,6 @@ class _LoginScreenContentState extends ConsumerState<_LoginScreenContent> {
           height: 56,
           child: ElevatedButton(
             key: const Key('login_button'),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: formState.status == FormzStatus.valid &&
-                      !formState.isSubmitting
-                  ? const Color(0xFF1DD6C1)
-                  : const Color(0x801DD6C1),
-              disabledBackgroundColor: const Color(0x801DD6C1),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
-            ),
             onPressed: formState.status == FormzStatus.valid &&
                     !formState.isSubmitting
                 ? () async {
@@ -148,7 +137,6 @@ class _LoginScreenContentState extends ConsumerState<_LoginScreenContent> {
                 : const Text(
                     'Login',
                     style: TextStyle(
-                      color: Colors.white,
                       fontWeight: FontWeight.bold,
                       fontSize: 18,
                     ),
