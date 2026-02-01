@@ -27,7 +27,8 @@ class DateOfBirthInput extends FormzInput<String, DateOfBirthValidationError> {
 
       final date = DateTime(year, month, day);
 
-      // Check if the parsed date matches the input (handles invalid dates like 02/30/2023)
+      // Check if the parsed date matches the input (handles invalid dates
+      // like 02/30/2023)
       if (date.month != month || date.day != day || date.year != year) {
         return DateOfBirthValidationError.invalid;
       }

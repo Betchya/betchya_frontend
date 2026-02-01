@@ -1,12 +1,12 @@
-import 'package:betchya_frontend/src/features/auth/presentation/auth_provider.dart';
+import 'package:betchya_frontend/src/features/auth/bloc/auth_bloc.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
-class HomeScreen extends ConsumerWidget {
+class HomeScreen extends StatelessWidget {
   const HomeScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Home'),
@@ -15,7 +15,7 @@ class HomeScreen extends ConsumerWidget {
             key: const Key('home_logout_button'),
             icon: const Icon(Icons.logout),
             onPressed: () {
-              ref.read(authControllerProvider.notifier).signOut();
+              context.read<AuthBloc>().add(const AuthLogoutRequested());
             },
           ),
         ],

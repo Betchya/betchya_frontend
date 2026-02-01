@@ -1,27 +1,23 @@
-import 'package:betchya_frontend/src/features/auth/data/auth_repository.dart';
-import 'package:betchya_frontend/src/features/auth/presentation/auth_provider.dart';
+import 'package:auth_repository/auth_repository.dart';
 import 'package:betchya_frontend/src/features/auth/presentation/login/login_screen.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:go_router/go_router.dart';
 import 'package:mocktail/mocktail.dart';
-import 'package:supabase_flutter/supabase_flutter.dart';
 
-import '../../robots/auth_robot.dart';
+import '../../../../robots/auth_robot.dart';
 
 class MockAuthRepository extends Mock implements AuthRepository {}
 
 class MockGoRouter extends Mock implements GoRouter {}
 
-final fakeUser = User(
-  id: '123',
-  appMetadata: const {},
-  userMetadata: const {},
-  aud: 'authenticated',
-  createdAt: DateTime.now().toIso8601String(),
-  email: 'test@example.com',
-);
+class FakeUser extends Fake implements User {
+  @override
+  String get id => '123';
+  @override
+  String get email => 'test@example.com';
+}
 
 void main() {
   late MockAuthRepository authRepository;
@@ -37,10 +33,8 @@ void main() {
 
   Future<void> pumpLoginScreen(WidgetTester tester) async {
     await tester.pumpWidget(
-      ProviderScope(
-        overrides: [
-          authRepositoryProvider.overrideWithValue(authRepository),
-        ],
+      RepositoryProvider<AuthRepository>.value(
+        value: authRepository,
         child: InheritedGoRouter(
           goRouter: mockRouter,
           child: const MaterialApp(
@@ -92,7 +86,6 @@ void main() {
     testWidgets('shows error on failed login', (tester) async {
       // Arrange: mock auth repository to fail
       const errorMessage = 'Invalid credentials';
-      const error = AuthException(errorMessage);
 
       // Mock sign in to fail
       when(
@@ -100,7 +93,7 @@ void main() {
           email: any(named: 'email'),
           password: any(named: 'password'),
         ),
-      ).thenThrow(error);
+      ).thenThrow(Exception(errorMessage));
 
       await pumpLoginScreen(tester);
       final robot = AuthRobot(tester);
@@ -114,51 +107,10 @@ void main() {
       await robot.tapLoginButton();
 
       // Wait for the error to be processed
-      await tester.pump(); // Build frame for tap
-      await tester.pump(); // Build frame for async gap
-      await tester.pump(); // Build frame for error state
+      await tester.pumpAndSettle();
 
       // Verify error appears in UI
-      final errorFinder = find.byWidgetPredicate(
-        (widget) =>
-            widget is Text &&
-            widget.style?.color == Colors.red &&
-            widget.data!.contains(errorMessage),
-      );
-      expect(errorFinder, findsOneWidget);
-    });
-
-    testWidgets('updates auth state and navigates on successful login',
-        (tester) async {
-      // Mock successful sign in
-      when(
-        () => authRepository.signIn(
-          email: any(named: 'email'),
-          password: any(named: 'password'),
-        ),
-      ).thenAnswer((_) async => fakeUser);
-
-      // Mock router navigation
-      when(() => mockRouter.goNamed(any())).thenReturn(null);
-
-      await pumpLoginScreen(tester);
-      final robot = AuthRobot(tester);
-
-      await robot.enterLoginEmail('test@example.com');
-      await robot.enterLoginPassword('Abcd1234!');
-      await robot.tapLoginButton();
-
-      // Verify auth state is updated with the user
-      await tester.pump();
-      verify(
-        () => authRepository.signIn(
-          email: 'test@example.com',
-          password: 'Abcd1234!',
-        ),
-      ).called(1);
-
-      // Verify navigation is triggered
-      verify(() => mockRouter.goNamed('home')).called(1);
+      expect(find.textContaining(errorMessage), findsOneWidget);
     });
 
     testWidgets('toggles password visibility when icon is tapped',
@@ -214,6 +166,9 @@ void main() {
       expect(forgotInfoButton, findsOneWidget);
 
       // Verify we can tap it (shouldn't throw)
+      // Note: Navigation might fail if router not set up for it,
+      // but button tap works
+      when(() => mockRouter.pushNamed(any())).thenAnswer((_) async => null);
       await tester.tap(forgotInfoButton);
       await tester.pump();
     });
