@@ -146,7 +146,8 @@ void main() {
       await tester.tap(find.byIcon(Icons.calendar_today));
       await tester.pumpAndSettle();
 
-      // Tap 'OK' (defaults to current selection which might be out of range if not careful,
+      // Tap 'OK' (defaults to current selection which might be out of range if
+      // not careful,
       // but the picker is set to 25 years ago by default in the code)
       await tester.tap(find.text('OK'));
       await tester.pumpAndSettle();

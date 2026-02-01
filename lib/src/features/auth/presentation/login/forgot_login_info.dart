@@ -20,12 +20,14 @@ class DateInputFormatter extends TextInputFormatter {
     final limitedDigits =
         digitsOnly.length > 8 ? digitsOnly.substring(0, 8) : digitsOnly;
 
-    // Format with slashes based on length to avoid confusing intermediate states
+    // Format with slashes based on length to avoid confusing intermediate
+    // states
     String formatted;
     if (limitedDigits.isEmpty) {
       formatted = '';
     } else if (limitedDigits.length <= 2) {
-      // Up to 2 digits: just show month, no trailing slash yet (e.g., "1")
+      // Up to 2 digits: just show month, no trailing slash yet
+      // (e.g., "1", "12")
       formatted = limitedDigits;
     } else if (limitedDigits.length <= 4) {
       // 3–4 digits: MM/D or MM/DD
