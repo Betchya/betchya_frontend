@@ -48,14 +48,12 @@ class DateInputFormatter extends TextInputFormatter {
 class ForgotLoginInfoScreen extends ConsumerWidget {
   const ForgotLoginInfoScreen({super.key});
 
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    return Scaffold(
-      backgroundColor: const Color(0xFF22124B),
-      body: SafeArea(
-                        child: Center(
-                          child: GestureDetector(
-                            key: const Key('forgot_login_gesture_detector'),
+    @override
+    Widget build(BuildContext context, WidgetRef ref) {
+      return Scaffold(
+        body: SafeArea(
+          child: Center(
+            child: GestureDetector(                            key: const Key('forgot_login_gesture_detector'),
                             behavior: HitTestBehavior.opaque,
                             onHorizontalDragEnd: (details) {
                               if (details.primaryVelocity != null &&
@@ -103,8 +101,8 @@ class _ForgotLoginInfoScreenContentState
       builder: (context, child) {
         return Theme(
           data: Theme.of(context).copyWith(
-            colorScheme: const ColorScheme.light(
-              primary: Color(0xFF1DD6C1),
+            colorScheme: ColorScheme.light(
+              primary: Theme.of(context).colorScheme.primary,
             ),
           ),
           child: child!,
@@ -228,16 +226,6 @@ class _ForgotLoginInfoScreenContentState
           height: 56,
           child: ElevatedButton(
             key: const Key('forgot_login_submit_button'),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: formState.status == FormzStatus.valid &&
-                      (submissionState?.isLoading ?? false) != true
-                  ? const Color(0xFF1DD6C1)
-                  : const Color(0x801DD6C1),
-              disabledBackgroundColor: const Color(0x801DD6C1),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(8),
-              ),
-            ),
             onPressed: formState.status == FormzStatus.valid &&
                     (submissionState?.isLoading ?? false) != true
                 ? () async {
@@ -269,7 +257,6 @@ class _ForgotLoginInfoScreenContentState
                 : const Text(
                     'Submit',
                     style: TextStyle(
-                      color: Colors.white,
                       fontWeight: FontWeight.bold,
                       fontSize: 18,
                     ),
