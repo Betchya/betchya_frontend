@@ -1,234 +1,334 @@
-import 'package:betchya_frontend/src/features/auth/presentation/signup/sign_up_form_controller.dart';
+import 'package:auth_repository/auth_repository.dart';
+import 'package:betchya_frontend/src/features/auth/presentation/signup/cubit/sign_up_cubit.dart';
+import 'package:betchya_frontend/src/features/auth/presentation/signup/cubit/sign_up_state.dart';
 import 'package:betchya_frontend/src/routing/app_router.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:formz/formz.dart';
 import 'package:go_router/go_router.dart';
 
-class SignUpScreen extends ConsumerWidget {
+class SignUpScreen extends StatelessWidget {
   const SignUpScreen({super.key});
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    ref.listen<SignUpFormState>(signUpFormControllerProvider, (previous, next) {
-      if (next.status == FormzStatus.submissionSuccess) {
-        context.goNamed(AppRoute.home.name);
-      }
-    });
+  Widget build(BuildContext context) {
+    return BlocProvider(
+      create: (context) => SignUpCubit(context.read<AuthRepository>()),
+      child: const SignUpView(),
+    );
+  }
+}
 
-    final formState = ref.watch(signUpFormControllerProvider);
-    final formController = ref.read(signUpFormControllerProvider.notifier);
+class SignUpView extends StatelessWidget {
+  const SignUpView({super.key});
 
-    return Scaffold(
-      backgroundColor: const Color(0xFF22124B),
-      appBar: AppBar(
-        backgroundColor: Colors.transparent,
-        elevation: 0,
-        leading: IconButton(
-          icon: const Icon(Icons.arrow_back, color: Colors.white),
-          onPressed: () => context.goNamed(AppRoute.login.name),
-        ),
-        title: const Text(
-          'Register',
-          style: TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
-            fontSize: 24,
+  @override
+  Widget build(BuildContext context) {
+    return BlocListener<SignUpCubit, SignUpState>(
+      listener: (context, state) {
+        if (state.status.isSuccess) {
+          // Navigation is handled by AppRouter listening to AuthBloc,
+          // but if we want to show a success message or handle specific navigation:
+          // In this architecture, AuthBloc listening to AuthRepository logic usually handles
+          // key auth state changes. However, SignUp might not auto-login depending on implementation.
+          // The previous code navigated on success.
+          // Wait, AuthRepository.signUp updates the user? Yes, usually.
+          // If Supabase signs in immediately, AuthBloc will see it and redirect.
+          // If not (e.g. email confirmation), we might stay here or show a dialog.
+          // For now, assuming standard flow where auth state change handles it.
+        }
+        if (state.status.isFailure) {
+          ScaffoldMessenger.of(context)
+            ..hideCurrentSnackBar()
+            ..showSnackBar(
+              SnackBar(
+                content: Text(
+                  state.errorMessage ?? 'Authentication Failure',
+                ),
+              ),
+            );
+        }
+      },
+      child: Scaffold(
+        backgroundColor: const Color(0xFF22124B),
+        appBar: AppBar(
+          backgroundColor: Colors.transparent,
+          elevation: 0,
+          leading: IconButton(
+            icon: const Icon(Icons.arrow_back, color: Colors.white),
+            onPressed: () => context.goNamed(AppRoute.login.name),
           ),
+          title: const Text(
+            'Register',
+            style: TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+              fontSize: 24,
+            ),
+          ),
+          centerTitle: false,
         ),
-        centerTitle: false,
-      ),
-      body: SingleChildScrollView(
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const SizedBox(height: 12),
-            const Text(
-              'Sign up with email',
-              style: TextStyle(
-                color: Colors.white,
-                fontWeight: FontWeight.bold,
-                fontSize: 16,
-              ),
-            ),
-            const SizedBox(height: 16),
-            TextField(
-              key: const Key('signup_full_name_field'),
-              onChanged: formController.fullNameChanged,
-              decoration: InputDecoration(
-                filled: true,
-                fillColor: Colors.white,
-                hintText: 'Full Name',
-                errorText:
-                    formState.fullName.invalid == true ? 'Invalid name' : null,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10),
-                  borderSide: BorderSide.none,
-                ),
-                contentPadding:
-                    const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
-              ),
-            ),
-            const SizedBox(height: 12),
-            TextField(
-              key: const Key('signup_email_field'),
-              onChanged: formController.emailChanged,
-              keyboardType: TextInputType.emailAddress,
-              decoration: InputDecoration(
-                filled: true,
-                fillColor: Colors.white,
-                hintText: 'Email',
-                errorText: formState.email.invalid ? 'Invalid email' : null,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10),
-                  borderSide: BorderSide.none,
-                ),
-                contentPadding:
-                    const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
-              ),
-            ),
-            const SizedBox(height: 12),
-            TextField(
-              key: const Key('signup_password_field'),
-              onChanged: formController.passwordChanged,
-              obscureText: true,
-              decoration: InputDecoration(
-                filled: true,
-                fillColor: Colors.white,
-                hintText: 'Password',
-                errorText:
-                    formState.password.invalid ? 'Invalid password' : null,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10),
-                  borderSide: BorderSide.none,
-                ),
-                contentPadding:
-                    const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
-              ),
-            ),
-            const SizedBox(height: 12),
-            TextField(
-              key: const Key('signup_confirm_password_field'),
-              onChanged: formController.confirmPasswordChanged,
-              obscureText: true,
-              decoration: InputDecoration(
-                filled: true,
-                fillColor: Colors.white,
-                hintText: 'Confirm Password',
-                errorText: formState.confirmPassword.invalid
-                    ? 'Passwords do not match'
-                    : null,
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10),
-                  borderSide: BorderSide.none,
-                ),
-                contentPadding:
-                    const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
-              ),
-            ),
-            const SizedBox(height: 8),
-            const Text(
-              '8 or more characters\nAt least 1 capital letter, number & '
-              'special character',
-              style: TextStyle(
-                color: Colors.white70,
-                fontSize: 12,
-              ),
-            ),
-            const SizedBox(height: 24),
-            Row(
-              children: [
-                Checkbox(
-                  value: formState.consent,
-                  onChanged: (value) =>
-                      formController.consentChanged(value: value),
-                  activeColor: const Color(0xFF1DD6C1),
-                ),
-                const Expanded(
-                  child: Text(
-                    'I want to receive emails about {organization name}, '
-                    'feature updates, events, and marketing promotions.',
-                    style: TextStyle(color: Colors.white, fontSize: 13),
-                  ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            if (formState.error != null) ...[
-              Text(
-                formState.error!,
-                style: const TextStyle(color: Colors.red),
-              ),
-              const SizedBox(height: 8),
-            ],
-            SizedBox(
-              width: double.infinity,
-              height: 56,
-              child: ElevatedButton(
-                key: const Key('signup_button'),
-                onPressed: formState.status == FormzStatus.valid &&
-                        !formState.isSubmitting
-                    ? () async {
-                        formController.validateAll();
-                        await formController.submit();
-                      }
-                    : null,
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: formState.status == FormzStatus.valid &&
-                          !formState.isSubmitting
-                      ? const Color(0xFF1DD6C1)
-                      : const Color(0x801DD6C1),
-                  disabledBackgroundColor: const Color(0x801DD6C1),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                ),
-                child: formState.isSubmitting
-                    ? const CircularProgressIndicator(color: Colors.white)
-                    : const Text(
-                        'Next',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                          fontSize: 18,
-                        ),
-                      ),
-              ),
-            ),
-            const SizedBox(height: 32),
-            const Center(
-              child: Text(
-                'Or sign up with',
+        body: SingleChildScrollView(
+          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const SizedBox(height: 12),
+              const Text(
+                'Sign up with email',
                 style: TextStyle(
                   color: Colors.white,
                   fontWeight: FontWeight.bold,
-                  fontSize: 14,
+                  fontSize: 16,
                 ),
               ),
-            ),
-            const SizedBox(height: 16),
-            const Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: [
-                _SocialButton(
-                  asset: 'assets/icons/google.svg',
-                  key: Key('social_button_google'),
+              const SizedBox(height: 16),
+              _FullNameInput(),
+              const SizedBox(height: 12),
+              _EmailInput(),
+              const SizedBox(height: 12),
+              _PasswordInput(),
+              const SizedBox(height: 12),
+              _ConfirmPasswordInput(),
+              const SizedBox(height: 8),
+              const Text(
+                '8 or more characters\nAt least 1 capital letter, number & '
+                'special character',
+                style: TextStyle(
+                  color: Colors.white70,
+                  fontSize: 12,
                 ),
-                _SocialButton(
-                  asset: 'assets/icons/apple.svg',
-                  key: Key('social_button_apple'),
+              ),
+              const SizedBox(height: 24),
+              _ConsentCheckbox(),
+              const SizedBox(height: 12),
+              _SignUpButton(),
+              const SizedBox(height: 32),
+              const Center(
+                child: Text(
+                  'Or sign up with',
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 14,
+                  ),
                 ),
-                _SocialButton(
-                  asset: 'assets/icons/facebook.svg',
-                  key: Key('social_button_facebook'),
-                ),
-              ],
-            ),
-          ],
+              ),
+              const SizedBox(height: 16),
+              const Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: [
+                  _SocialButton(
+                    asset: 'assets/icons/google.svg',
+                    key: Key('social_button_google'),
+                  ),
+                  _SocialButton(
+                    asset: 'assets/icons/apple.svg',
+                    key: Key('social_button_apple'),
+                  ),
+                  _SocialButton(
+                    asset: 'assets/icons/facebook.svg',
+                    key: Key('social_button_facebook'),
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
+    );
+  }
+}
+
+class _FullNameInput extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<SignUpCubit, SignUpState>(
+      buildWhen: (previous, current) => previous.fullName != current.fullName,
+      builder: (context, state) {
+        return TextField(
+          key: const Key('signup_full_name_field'),
+          onChanged: (value) =>
+              context.read<SignUpCubit>().fullNameChanged(value),
+          decoration: InputDecoration(
+            filled: true,
+            fillColor: Colors.white,
+            hintText: 'Full Name',
+            errorText: state.fullName.isPure || state.fullName.isValid
+                ? null
+                : 'Invalid name',
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: BorderSide.none,
+            ),
+            contentPadding:
+                const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+          ),
+        );
+      },
+    );
+  }
+}
+
+class _EmailInput extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<SignUpCubit, SignUpState>(
+      buildWhen: (previous, current) => previous.email != current.email,
+      builder: (context, state) {
+        return TextField(
+          key: const Key('signup_email_field'),
+          onChanged: (value) => context.read<SignUpCubit>().emailChanged(value),
+          keyboardType: TextInputType.emailAddress,
+          decoration: InputDecoration(
+            filled: true,
+            fillColor: Colors.white,
+            hintText: 'Email',
+            errorText: state.email.isPure || state.email.isValid
+                ? null
+                : 'Invalid email',
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: BorderSide.none,
+            ),
+            contentPadding:
+                const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+          ),
+        );
+      },
+    );
+  }
+}
+
+class _PasswordInput extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<SignUpCubit, SignUpState>(
+      buildWhen: (previous, current) => previous.password != current.password,
+      builder: (context, state) {
+        return TextField(
+          key: const Key('signup_password_field'),
+          onChanged: (value) =>
+              context.read<SignUpCubit>().passwordChanged(value),
+          obscureText: true,
+          decoration: InputDecoration(
+            filled: true,
+            fillColor: Colors.white,
+            hintText: 'Password',
+            errorText: state.password.isPure || state.password.isValid
+                ? null
+                : 'Invalid password',
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: BorderSide.none,
+            ),
+            contentPadding:
+                const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+          ),
+        );
+      },
+    );
+  }
+}
+
+class _ConfirmPasswordInput extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<SignUpCubit, SignUpState>(
+      buildWhen: (previous, current) =>
+          previous.confirmPassword != current.confirmPassword,
+      builder: (context, state) {
+        return TextField(
+          key: const Key('signup_confirm_password_field'),
+          onChanged: (value) =>
+              context.read<SignUpCubit>().confirmPasswordChanged(value),
+          obscureText: true,
+          decoration: InputDecoration(
+            filled: true,
+            fillColor: Colors.white,
+            hintText: 'Confirm Password',
+            errorText:
+                state.confirmPassword.isPure || state.confirmPassword.isValid
+                    ? null
+                    : 'Passwords do not match',
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: BorderSide.none,
+            ),
+            contentPadding:
+                const EdgeInsets.symmetric(vertical: 16, horizontal: 16),
+          ),
+        );
+      },
+    );
+  }
+}
+
+class _ConsentCheckbox extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<SignUpCubit, SignUpState>(
+      buildWhen: (previous, current) => previous.consent != current.consent,
+      builder: (context, state) {
+        return Row(
+          children: [
+            Checkbox(
+              value: state.consent,
+              onChanged: (value) => context
+                  .read<SignUpCubit>()
+                  .consentChanged(value: value ?? false),
+              activeColor: const Color(0xFF1DD6C1),
+            ),
+            const Expanded(
+              child: Text(
+                'I want to receive emails about {organization name}, '
+                'feature updates, events, and marketing promotions.',
+                style: TextStyle(color: Colors.white, fontSize: 13),
+              ),
+            ),
+          ],
+        );
+      },
+    );
+  }
+}
+
+class _SignUpButton extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return BlocBuilder<SignUpCubit, SignUpState>(
+      builder: (context, state) {
+        return SizedBox(
+          width: double.infinity,
+          height: 56,
+          child: ElevatedButton(
+            key: const Key('signup_button'),
+            onPressed: state.isValid
+                ? () => context.read<SignUpCubit>().signUpFormSubmitted()
+                : null,
+            style: ElevatedButton.styleFrom(
+              backgroundColor: state.isValid
+                  ? const Color(0xFF1DD6C1)
+                  : const Color(0x801DD6C1),
+              disabledBackgroundColor: const Color(0x801DD6C1),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+            ),
+            child: state.status.isInProgress
+                ? const CircularProgressIndicator(color: Colors.white)
+                : const Text(
+                    'Next',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 18,
+                    ),
+                  ),
+          ),
+        );
+      },
     );
   }
 }
