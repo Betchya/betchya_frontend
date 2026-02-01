@@ -20,12 +20,12 @@ class DateInputFormatter extends TextInputFormatter {
     final limitedDigits =
         digitsOnly.length > 8 ? digitsOnly.substring(0, 8) : digitsOnly;
 
-    // Format with slashes based on current length to avoid confusing intermediate states
+    // Format with slashes based on length to avoid confusing intermediate states
     String formatted;
     if (limitedDigits.isEmpty) {
       formatted = '';
     } else if (limitedDigits.length <= 2) {
-      // Up to 2 digits: just show month, no trailing slash yet (e.g., "1", "12")
+      // Up to 2 digits: just show month, no trailing slash yet (e.g., "1")
       formatted = limitedDigits;
     } else if (limitedDigits.length <= 4) {
       // 3–4 digits: MM/D or MM/DD
@@ -53,17 +53,18 @@ class ForgotLoginInfoScreen extends ConsumerWidget {
     return Scaffold(
       backgroundColor: const Color(0xFF22124B),
       body: SafeArea(
-                        child: Center(
-                          child: GestureDetector(
-                            key: const Key('forgot_login_gesture_detector'),
-                            behavior: HitTestBehavior.opaque,
-                            onHorizontalDragEnd: (details) {
-                              if (details.primaryVelocity != null &&
-                                  details.primaryVelocity! > 0) {
-                                Navigator.of(context).pop();
-                              }
-                            },
-                            child: SingleChildScrollView(              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+        child: Center(
+          child: GestureDetector(
+            key: const Key('forgot_login_gesture_detector'),
+            behavior: HitTestBehavior.opaque,
+            onHorizontalDragEnd: (details) {
+              if (details.primaryVelocity != null &&
+                  details.primaryVelocity! > 0) {
+                Navigator.of(context).pop();
+              }
+            },
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
               child: _ForgotLoginInfoScreenContent(),
             ),
           ),
@@ -127,26 +128,25 @@ class _ForgotLoginInfoScreenContentState
     final submissionState = ref.watch(forgotLoginInfoSubmissionStateProvider);
 
     // Listen for success state
-    ref.listen(forgotLoginInfoSubmissionStateProvider, (previous, next) {
-      if (next?.hasValue ?? false) {
-        // Show success message and navigate back
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Login information has been sent to your email'),
-            backgroundColor: Colors.green,
-          ),
-        );
-        Navigator.of(context).pop();
-      }
-    });
-
-    // Listen for DOB changes to update controller
-    ref.listen(forgotLoginInfoControllerProvider, (previous, next) {
-      if (previous?.dob.value != next.dob.value &&
-          _dobController.text != next.dob.value) {
-        _dobController.text = next.dob.value;
-      }
-    });
+    ref
+      ..listen(forgotLoginInfoSubmissionStateProvider, (previous, next) {
+        if (next?.hasValue ?? false) {
+          // Show success message and navigate back
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Login information has been sent to your email'),
+              backgroundColor: Colors.green,
+            ),
+          );
+          Navigator.of(context).pop();
+        }
+      })
+      ..listen(forgotLoginInfoControllerProvider, (previous, next) {
+        if (previous?.dob.value != next.dob.value &&
+            _dobController.text != next.dob.value) {
+          _dobController.text = next.dob.value;
+        }
+      });
 
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,

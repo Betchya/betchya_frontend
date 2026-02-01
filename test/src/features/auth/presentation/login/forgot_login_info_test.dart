@@ -32,7 +32,9 @@ void main() {
       ),
     );
     // Push the screen
-    tester.state<NavigatorState>(find.byType(Navigator)).pushNamed('/forgot');
+    await tester
+        .state<NavigatorState>(find.byType(Navigator))
+        .pushNamed('/forgot');
     await tester.pumpAndSettle();
   }
 
