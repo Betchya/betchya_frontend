@@ -33,6 +33,11 @@ lib/
 ├─ shared/ # Reusable UI, utilities, theming
 ├─ core/ # App-wide concerns (routing, config, errors)
 └─ main.dart
+packages/
+|_ repositories
+|_ api_clients
+|_ betchya_ui (for reusable widgets, theme)
+
 
 ### Where logic lives
 - **Business logic:** Bloc classes
