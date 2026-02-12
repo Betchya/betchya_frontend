@@ -30,7 +30,7 @@ dev_dependencies:
     sdk: flutter
   mocktail: ^1.0.4
   shared_preferences: ^2.5.3
-  very_good_analysis: ^6.0.0
+  very_good_analysis: ^10.1.0
 
 flutter_native_splash:
   color: "#2C1D57"
