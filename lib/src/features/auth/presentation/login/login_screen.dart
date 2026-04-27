@@ -1,50 +1,34 @@
-import 'package:auth_repository/auth_repository.dart';
-import 'package:betchya_frontend/src/features/auth/presentation/login/cubit/login_cubit.dart';
-import 'package:betchya_frontend/src/features/auth/presentation/login/cubit/login_state.dart';
+import 'package:betchya_frontend/src/features/auth/presentation/auth_provider.dart';
+import 'package:betchya_frontend/src/features/auth/presentation/login/login_form_controller.dart';
 import 'package:betchya_frontend/src/routing/app_router.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:formz/formz.dart';
 import 'package:go_router/go_router.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
-class LoginScreen extends StatelessWidget {
+class LoginScreen extends ConsumerWidget {
   const LoginScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => LoginCubit(context.read<AuthRepository>()),
-      child: const LoginView(),
-    );
-  }
-}
-
-class LoginView extends StatelessWidget {
-  const LoginView({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return BlocListener<LoginCubit, LoginState>(
-      listenWhen: (previous, current) => previous.status != current.status,
-      listener: (context, state) {
-        if (state.status == FormzSubmissionStatus.failure) {
-          ScaffoldMessenger.of(context)
-            ..hideCurrentSnackBar()
-            ..showSnackBar(
-              SnackBar(
-                content: Text(state.errorMessage ?? 'Authentication Failure'),
-              ),
-            );
+  Widget build(BuildContext context, WidgetRef ref) {
+    ref.listen<AsyncValue<User?>>(
+      authControllerProvider,
+      (previous, next) {
+        // If we have a user, navigate to HomeScreen
+        if (next is AsyncData && next.value != null) {
+          context.goNamed(AppRoute.home.name);
         }
       },
-      child: Scaffold(
-        body: SafeArea(
-          child: Center(
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
-              child: _LoginScreenContent(),
-            ),
+    );
+
+    return Scaffold(
+      body: SafeArea(
+        child: Center(
+          child: SingleChildScrollView(
+            padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+            child: _LoginScreenContent(),
           ),
         ),
       ),
@@ -52,61 +36,41 @@ class LoginView extends StatelessWidget {
   }
 }
 
-class _LoginScreenContent extends StatefulWidget {
+class _LoginScreenContent extends ConsumerStatefulWidget {
   @override
-  State<_LoginScreenContent> createState() => _LoginScreenContentState();
+  ConsumerState<_LoginScreenContent> createState() =>
+      _LoginScreenContentState();
 }
 
-class _LoginScreenContentState extends State<_LoginScreenContent> {
+class _LoginScreenContentState extends ConsumerState<_LoginScreenContent> {
   bool _obscurePassword = true;
 
   @override
   Widget build(BuildContext context) {
+    final formController = ref.read(loginFormControllerProvider.notifier);
+    final formState = ref.watch(loginFormControllerProvider);
+    final authState = ref.watch(authControllerProvider);
+
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         const SizedBox(height: 40),
+        // Logo
         SvgPicture.asset(
           'assets/images/betchya_logo_white.svg',
           height: 120,
         ),
         const SizedBox(height: 48),
-        _EmailInput(),
-        const SizedBox(height: 12),
-        _PasswordInput(
-          obscureText: _obscurePassword,
-          onToggleObscure: () => setState(() {
-            _obscurePassword = !_obscurePassword;
-          }),
-        ),
-        const SizedBox(height: 24),
-        _LoginButton(),
-        const SizedBox(height: 32),
-        _CreateAccountButton(),
-        const SizedBox(height: 12),
-        _ForgotLoginButton(),
-      ],
-    );
-  }
-}
-
-class _EmailInput extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return BlocBuilder<LoginCubit, LoginState>(
-      buildWhen: (previous, current) => previous.email != current.email,
-      builder: (context, state) {
-        return TextField(
+        // Email
+        TextField(
           key: const Key('login_email_field'),
-          onChanged: (email) => context.read<LoginCubit>().emailChanged(email),
+          onChanged: formController.emailChanged,
           keyboardType: TextInputType.emailAddress,
           decoration: InputDecoration(
             filled: true,
             fillColor: Colors.white,
             hintText: 'Email',
-            errorText: state.email.isPure || state.email.isValid
-                ? null
-                : 'Invalid email',
+            errorText: formState.email.invalid ? 'Invalid email' : null,
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(10),
               borderSide: BorderSide.none,
@@ -116,38 +80,18 @@ class _EmailInput extends StatelessWidget {
               horizontal: 16,
             ),
           ),
-        );
-      },
-    );
-  }
-}
-
-class _PasswordInput extends StatelessWidget {
-  const _PasswordInput({
-    required this.obscureText,
-    required this.onToggleObscure,
-  });
-
-  final bool obscureText;
-  final VoidCallback onToggleObscure;
-
-  @override
-  Widget build(BuildContext context) {
-    return BlocBuilder<LoginCubit, LoginState>(
-      buildWhen: (previous, current) => previous.password != current.password,
-      builder: (context, state) {
-        return TextField(
+        ),
+        const SizedBox(height: 12),
+        // Password with show/hide
+        TextField(
           key: const Key('login_password_field'),
-          onChanged: (password) =>
-              context.read<LoginCubit>().passwordChanged(password),
-          obscureText: obscureText,
+          onChanged: formController.passwordChanged,
+          obscureText: _obscurePassword,
           decoration: InputDecoration(
             filled: true,
             fillColor: Colors.white,
             hintText: 'Password',
-            errorText: state.password.isPure || state.password.isValid
-                ? null
-                : 'Invalid password',
+            errorText: formState.password.invalid ? 'Invalid password' : null,
             border: OutlineInputBorder(
               borderRadius: BorderRadius.circular(10),
               borderSide: BorderSide.none,
@@ -158,34 +102,37 @@ class _PasswordInput extends StatelessWidget {
             ),
             suffixIcon: IconButton(
               icon: Icon(
-                obscureText ? Icons.visibility_off : Icons.visibility,
+                _obscurePassword ? Icons.visibility_off : Icons.visibility,
                 color: Colors.grey,
               ),
-              onPressed: onToggleObscure,
+              onPressed: () {
+                setState(() {
+                  _obscurePassword = !_obscurePassword;
+                });
+              },
             ),
           ),
-        );
-      },
-    );
-  }
-}
-
-class _LoginButton extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return BlocBuilder<LoginCubit, LoginState>(
-      builder: (context, state) {
-        return SizedBox(
+        ),
+        const SizedBox(height: 24),
+        // Login Button
+        SizedBox(
           width: double.infinity,
           height: 56,
           child: ElevatedButton(
             key: const Key('login_button'),
-            onPressed: state.isValid
-                ? () {
-                    context.read<LoginCubit>().logInWithCredentials();
+            onPressed: formState.status == FormzStatus.valid &&
+                    !formState.isSubmitting
+                ? () async {
+                    formController.validateAll();
+                    if (formState.status == FormzStatus.valid) {
+                      await ref.read(authControllerProvider.notifier).signIn(
+                            email: formState.email.value,
+                            password: formState.password.value,
+                          );
+                    }
                   }
                 : null,
-            child: state.status == FormzSubmissionStatus.inProgress
+            child: authState.isLoading
                 ? const CircularProgressIndicator(color: Colors.white)
                 : const Text(
                     'Login',
@@ -195,50 +142,50 @@ class _LoginButton extends StatelessWidget {
                     ),
                   ),
           ),
-        );
-      },
-    );
-  }
-}
-
-class _CreateAccountButton extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      key: const Key('login_create_account'),
-      onTap: () {
-        context.goNamed(AppRoute.signUp.name);
-      },
-      child: const Text(
-        'Create Account',
-        style: TextStyle(
-          color: Colors.white,
-          fontSize: 22,
-          fontWeight: FontWeight.w400,
         ),
-        textAlign: TextAlign.center,
-      ),
-    );
-  }
-}
-
-class _ForgotLoginButton extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      key: const Key('login_forgot_info'),
-      onTap: () {
-        context.pushNamed(AppRoute.forgotLogin.name);
-      },
-      child: const Text(
-        'Forgot Your Login Info?',
-        style: TextStyle(
-          color: Colors.white70,
-          decoration: TextDecoration.underline,
-          fontSize: 15,
+        if (authState.hasError)
+          Padding(
+            padding: const EdgeInsets.only(top: 12),
+            child: Text(
+              authState.error.toString(),
+              style: const TextStyle(color: Colors.red),
+            ),
+          ),
+        const SizedBox(height: 32),
+        // Create Account
+        GestureDetector(
+          key: const Key('login_create_account'),
+          onTap: () {
+            context.goNamed(AppRoute.signUp.name);
+          },
+          child: const Text(
+            'Create Account',
+            style: TextStyle(
+              color: Colors.white,
+              fontSize: 22,
+              fontWeight: FontWeight.w400,
+            ),
+            textAlign: TextAlign.center,
+          ),
         ),
-        textAlign: TextAlign.center,
-      ),
+        const SizedBox(height: 12),
+        // Forgot Login Info
+        GestureDetector(
+          key: const Key('login_forgot_info'),
+          onTap: () {
+            context.pushNamed(AppRoute.forgotLogin.name);
+          },
+          child: const Text(
+            'Forgot Your Login Info?',
+            style: TextStyle(
+              color: Colors.white70,
+              decoration: TextDecoration.underline,
+              fontSize: 15,
+            ),
+            textAlign: TextAlign.center,
+          ),
+        ),
+      ],
     );
   }
 }

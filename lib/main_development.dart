@@ -1,7 +1,6 @@
-import 'package:auth_repository/auth_repository.dart';
-import 'package:betchya_frontend/bootstrap.dart';
 import 'package:betchya_frontend/src/app.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 
 Future<void> main() async {
@@ -12,9 +11,9 @@ Future<void> main() async {
     anonKey: const String.fromEnvironment('SUPABASE_ANON_KEY'),
   );
 
-  final authRepository = AuthRepository(
-    supabaseClient: Supabase.instance.client,
+  runApp(
+    const ProviderScope(
+      child: App(),
+    ),
   );
-
-  await bootstrap(() => App(authRepository: authRepository));
 }

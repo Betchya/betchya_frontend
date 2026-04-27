@@ -1,9 +1,7 @@
-import 'package:auth_repository/auth_repository.dart';
-import 'package:betchya_frontend/src/features/auth/presentation/login/cubit/forgot_login_cubit.dart';
-import 'package:betchya_frontend/src/features/auth/presentation/login/cubit/forgot_login_state.dart';
+import 'package:betchya_frontend/src/features/auth/presentation/login/forgot_login_info_controller.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:formz/formz.dart';
 
@@ -28,7 +26,8 @@ class DateInputFormatter extends TextInputFormatter {
     if (limitedDigits.isEmpty) {
       formatted = '';
     } else if (limitedDigits.length <= 2) {
-      // Up to 2 digits: just show month, no trailing slash yet (e.g., "1")
+      // Up to 2 digits: just show month, no trailing slash yet
+      // (e.g., "1", "12")
       formatted = limitedDigits;
     } else if (limitedDigits.length <= 4) {
       // 3–4 digits: MM/D or MM/DD
@@ -36,89 +35,38 @@ class DateInputFormatter extends TextInputFormatter {
           '${limitedDigits.substring(0, 2)}/${limitedDigits.substring(2)}';
     } else {
       // 5–8 digits: MM/DD/YYYY...
+      final yearPart = limitedDigits.substring(4);
       formatted =
-          '${limitedDigits.substring(0, 2)}/${limitedDigits.substring(2, 4)}/'
-          '${limitedDigits.substring(4)}';
+          '${limitedDigits.substring(0, 2)}/${limitedDigits.substring(2, 4)}/$yearPart';
     }
 
-    return newValue.copyWith(
+    return TextEditingValue(
       text: formatted,
       selection: TextSelection.collapsed(offset: formatted.length),
     );
   }
 }
 
-class ForgotLoginInfoScreen extends StatelessWidget {
+class ForgotLoginInfoScreen extends ConsumerWidget {
   const ForgotLoginInfoScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return BlocProvider(
-      create: (context) => ForgotLoginCubit(context.read<AuthRepository>()),
-      child: const ForgotLoginInfoView(),
-    );
-  }
-}
-
-class ForgotLoginInfoView extends StatelessWidget {
-  const ForgotLoginInfoView({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return BlocListener<ForgotLoginCubit, ForgotLoginState>(
-      listenWhen: (previous, current) => previous.status != current.status,
-      listener: (context, state) {
-        if (state.status == FormzSubmissionStatus.failure) {
-          ScaffoldMessenger.of(context)
-            ..hideCurrentSnackBar()
-            ..showSnackBar(
-              SnackBar(
-                content: Text(state.errorMessage ?? 'Authentication Failure'),
-              ),
-            );
-        }
-        if (state.status == FormzSubmissionStatus.success) {
-          // Use a root navigator or ensure context is valid if popping
-          if (context.mounted) {
-            ScaffoldMessenger.of(context)
-              ..hideCurrentSnackBar()
-              ..showSnackBar(
-                const SnackBar(
-                  content: Text(
-                    'Password reset email sent! Check your inbox.',
-                  ),
-                ),
-              );
-            Navigator.of(context).pop();
-          }
-        }
-      },
-      child: Scaffold(
-        appBar: AppBar(
-          leading: IconButton(
-            key: const Key('forgot_login_appbar_back_button'),
-            icon: const Icon(Icons.arrow_back, color: Colors.white),
-            onPressed: () => Navigator.of(context).pop(),
-          ),
-          backgroundColor: Colors.transparent,
-          elevation: 0,
-        ),
-        body: SafeArea(
-          child: Center(
-            child: GestureDetector(
-              key: const Key('forgot_login_gesture_detector'),
-              behavior: HitTestBehavior.opaque,
-              onHorizontalDragEnd: (details) {
-                if (details.primaryVelocity != null &&
-                    details.primaryVelocity! > 0) {
-                  Navigator.of(context).pop();
-                }
-              },
-              child: SingleChildScrollView(
-                padding:
-                    const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
-                child: _ForgotLoginContent(),
-              ),
+  Widget build(BuildContext context, WidgetRef ref) {
+    return Scaffold(
+      body: SafeArea(
+        child: Center(
+          child: GestureDetector(
+            key: const Key('forgot_login_gesture_detector'),
+            behavior: HitTestBehavior.opaque,
+            onHorizontalDragEnd: (details) {
+              if (details.primaryVelocity != null &&
+                  details.primaryVelocity! > 0) {
+                Navigator.of(context).pop();
+              }
+            },
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 24),
+              child: _ForgotLoginInfoScreenContent(),
             ),
           ),
         ),
@@ -127,12 +75,14 @@ class ForgotLoginInfoView extends StatelessWidget {
   }
 }
 
-class _ForgotLoginContent extends StatefulWidget {
+class _ForgotLoginInfoScreenContent extends ConsumerStatefulWidget {
   @override
-  State<_ForgotLoginContent> createState() => _ForgotLoginContentState();
+  ConsumerState<_ForgotLoginInfoScreenContent> createState() =>
+      _ForgotLoginInfoScreenContentState();
 }
 
-class _ForgotLoginContentState extends State<_ForgotLoginContent> {
+class _ForgotLoginInfoScreenContentState
+    extends ConsumerState<_ForgotLoginInfoScreenContent> {
   final _dobController = TextEditingController();
 
   @override
@@ -141,12 +91,17 @@ class _ForgotLoginContentState extends State<_ForgotLoginContent> {
     super.dispose();
   }
 
-  Future<void> _showDatePicker(BuildContext context) async {
+  Future<void> _showDatePicker(
+    BuildContext context,
+    ForgotLoginInfoController controller,
+  ) async {
     final picked = await showDatePicker(
       context: context,
-      initialDate: DateTime.now().subtract(const Duration(days: 365 * 25)),
+      initialDate: DateTime.now()
+          .subtract(const Duration(days: 365 * 25)), // Default to 25 years ago
       firstDate: DateTime(1900),
-      lastDate: DateTime.now().subtract(const Duration(days: 365 * 18)),
+      lastDate: DateTime.now()
+          .subtract(const Duration(days: 365 * 18)), // Minimum 18 years old
       builder: (context, child) {
         return Theme(
           data: Theme.of(context).copyWith(
@@ -160,37 +115,169 @@ class _ForgotLoginContentState extends State<_ForgotLoginContent> {
     );
 
     if (picked != null) {
-      if (!context.mounted) return;
-      final formattedDate = '${picked.month.toString().padLeft(2, '0')}/'
-          '${picked.day.toString().padLeft(2, '0')}/${picked.year}';
+      final formattedDate =
+          '${picked.month.toString().padLeft(2, '0')}/${picked.day.toString().padLeft(2, '0')}/${picked.year}';
       _dobController.text = formattedDate;
-      context.read<ForgotLoginCubit>().dobChanged(formattedDate);
+      controller.dobChanged(formattedDate);
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final formState = ref.watch(forgotLoginInfoControllerProvider);
+    final formController = ref.read(forgotLoginInfoControllerProvider.notifier);
+    final submissionState = ref.watch(forgotLoginInfoSubmissionStateProvider);
+
+    // Listen for success state
+    ref
+      ..listen(forgotLoginInfoSubmissionStateProvider, (previous, next) {
+        if (next?.hasValue ?? false) {
+          // Show success message and navigate back
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Login information has been sent to your email'),
+              backgroundColor: Colors.green,
+            ),
+          );
+          Navigator.of(context).pop();
+        }
+      })
+      ..listen(forgotLoginInfoControllerProvider, (previous, next) {
+        if (previous?.dob.value != next.dob.value &&
+            _dobController.text != next.dob.value) {
+          _dobController.text = next.dob.value;
+        }
+      });
+
     return Column(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
         const SizedBox(height: 40),
+        // Logo
         SvgPicture.asset(
           'assets/images/betchya_logo_white.svg',
           height: 120,
         ),
         const SizedBox(height: 48),
-        _EmailInput(),
+        // Email
+        TextField(
+          key: const Key('forgot_login_email_field'),
+          onChanged: formController.emailChanged,
+          keyboardType: TextInputType.emailAddress,
+          decoration: InputDecoration(
+            filled: true,
+            fillColor: Colors.white,
+            hintText: 'Email',
+            errorText: formState.email.invalid ? 'Invalid email' : null,
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: BorderSide.none,
+            ),
+            contentPadding: const EdgeInsets.symmetric(
+              vertical: 16,
+              horizontal: 16,
+            ),
+          ),
+        ),
         const SizedBox(height: 12),
-        _DobInput(
+        // Date of Birth
+        TextField(
+          key: const Key('forgot_login_dob_field'),
           controller: _dobController,
-          onShowDatePicker: () => _showDatePicker(context),
+          onChanged: formController.dobChanged,
+          keyboardType: TextInputType.datetime,
+          obscureText: formState.dobObscured,
+          inputFormatters: [DateInputFormatter()],
+          decoration: InputDecoration(
+            filled: true,
+            fillColor: Colors.white,
+            hintText: 'Date of Birth (mm/dd/yyyy)',
+            errorText: formState.dob.invalid ? 'Invalid date of birth' : null,
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: BorderSide.none,
+            ),
+            contentPadding: const EdgeInsets.symmetric(
+              vertical: 16,
+              horizontal: 16,
+            ),
+            suffixIcon: Row(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                IconButton(
+                  onPressed: () => _showDatePicker(context, formController),
+                  icon: const Icon(Icons.calendar_today, color: Colors.grey),
+                ),
+                TextButton(
+                  onPressed: formController.toggleDobObscured,
+                  child: Text(
+                    formState.dobObscured ? 'Show' : 'Hide',
+                    style: const TextStyle(
+                      color: Colors.grey,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
         ),
         const SizedBox(height: 24),
-        _SubmitButton(),
+        // Submit Button
+        SizedBox(
+          width: double.infinity,
+          height: 56,
+          child: ElevatedButton(
+            key: const Key('forgot_login_submit_button'),
+            onPressed: formState.status == FormzStatus.valid &&
+                    (submissionState?.isLoading ?? false) != true
+                ? () async {
+                    // Set loading state
+                    ref
+                        .read(forgotLoginInfoSubmissionStateProvider.notifier)
+                        .state = const AsyncValue.loading();
+
+                    try {
+                      await formController.submit();
+                      // Set success state
+                      ref
+                          .read(
+                            forgotLoginInfoSubmissionStateProvider.notifier,
+                          )
+                          .state = const AsyncValue.data(null);
+                    } catch (e, stackTrace) {
+                      // Set error state
+                      ref
+                          .read(
+                            forgotLoginInfoSubmissionStateProvider.notifier,
+                          )
+                          .state = AsyncValue.error(e, stackTrace);
+                    }
+                  }
+                : null,
+            child: (submissionState?.isLoading ?? false)
+                ? const CircularProgressIndicator(color: Colors.white)
+                : const Text(
+                    'Submit',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.bold,
+                      fontSize: 18,
+                    ),
+                  ),
+          ),
+        ),
+        if (submissionState?.hasError ?? false) ...[
+          const SizedBox(height: 12),
+          const Text(
+            'Something went wrong. Please try again.',
+            style: TextStyle(color: Colors.red),
+          ),
+        ],
         const SizedBox(height: 24),
         // Back to Login
         GestureDetector(
-          key: const Key('forgot_login_bottom_back_button'),
+          key: const Key('forgot_login_back_button'),
           onTap: () {
             Navigator.of(context).pop();
           },
@@ -205,131 +292,6 @@ class _ForgotLoginContentState extends State<_ForgotLoginContent> {
           ),
         ),
       ],
-    );
-  }
-}
-
-class _EmailInput extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return BlocBuilder<ForgotLoginCubit, ForgotLoginState>(
-      buildWhen: (previous, current) => previous.email != current.email,
-      builder: (context, state) {
-        return TextField(
-          key: const Key('forgot_login_email_field'),
-          onChanged: (value) =>
-              context.read<ForgotLoginCubit>().emailChanged(value),
-          keyboardType: TextInputType.emailAddress,
-          decoration: InputDecoration(
-            filled: true,
-            fillColor: Colors.white,
-            hintText: 'Email',
-            errorText: state.email.isPure || state.email.isValid
-                ? null
-                : 'Invalid email',
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10),
-              borderSide: BorderSide.none,
-            ),
-            contentPadding: const EdgeInsets.symmetric(
-              vertical: 16,
-              horizontal: 16,
-            ),
-          ),
-        );
-      },
-    );
-  }
-}
-
-class _DobInput extends StatelessWidget {
-  const _DobInput({
-    required this.controller,
-    required this.onShowDatePicker,
-  });
-
-  final TextEditingController controller;
-  final VoidCallback onShowDatePicker;
-
-  @override
-  Widget build(BuildContext context) {
-    return BlocBuilder<ForgotLoginCubit, ForgotLoginState>(
-      builder: (context, state) {
-        return TextField(
-          key: const Key('forgot_login_dob_field'),
-          controller: controller,
-          onChanged: (value) =>
-              context.read<ForgotLoginCubit>().dobChanged(value),
-          keyboardType: TextInputType.datetime,
-          obscureText: state.dobObscured,
-          inputFormatters: [DateInputFormatter()],
-          decoration: InputDecoration(
-            filled: true,
-            fillColor: Colors.white,
-            hintText: 'Date of Birth (mm/dd/yyyy)',
-            errorText: state.dob.isPure || state.dob.isValid
-                ? null
-                : 'Invalid date of birth',
-            border: OutlineInputBorder(
-              borderRadius: BorderRadius.circular(10),
-              borderSide: BorderSide.none,
-            ),
-            contentPadding: const EdgeInsets.symmetric(
-              vertical: 16,
-              horizontal: 16,
-            ),
-            suffixIcon: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                IconButton(
-                  onPressed: onShowDatePicker,
-                  icon: const Icon(Icons.calendar_today, color: Colors.grey),
-                ),
-                TextButton(
-                  onPressed: () =>
-                      context.read<ForgotLoginCubit>().toggleDobObscured(),
-                  child: Text(
-                    state.dobObscured ? 'Show' : 'Hide',
-                    style: const TextStyle(
-                      color: Colors.grey,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        );
-      },
-    );
-  }
-}
-
-class _SubmitButton extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return BlocBuilder<ForgotLoginCubit, ForgotLoginState>(
-      builder: (context, state) {
-        return SizedBox(
-          width: double.infinity,
-          height: 56,
-          child: ElevatedButton(
-            key: const Key('forgot_login_submit_button'),
-            onPressed: state.isValid
-                ? () => context.read<ForgotLoginCubit>().submit()
-                : null,
-            child: state.status == FormzSubmissionStatus.inProgress
-                ? const CircularProgressIndicator(color: Colors.white)
-                : const Text(
-                    'Submit',
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 18,
-                    ),
-                  ),
-          ),
-        );
-      },
     );
   }
 }

@@ -1,26 +1,34 @@
-import 'package:betchya_frontend/src/features/auth/bloc/auth_bloc.dart';
+import 'package:betchya_frontend/src/features/auth/presentation/auth_provider.dart';
 import 'package:betchya_frontend/src/features/home/presentation/home_screen.dart';
-import 'package:bloc_test/bloc_test.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
-import 'package:mocktail/mocktail.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
-class MockAuthBloc extends MockBloc<AuthEvent, AuthState> implements AuthBloc {}
+class _FakeAuthController extends AuthController {
+  _FakeAuthController();
+
+  bool signOutCalled = false;
+
+  @override
+  Future<void> signOut() async {
+    signOutCalled = true;
+  }
+
+  @override
+  Future<User?> build() async {
+    return null; // No user info needed for this test
+  }
+}
 
 void main() {
-  late MockAuthBloc authBloc;
-
-  setUp(() {
-    authBloc = MockAuthBloc();
-    // Default state
-    when(() => authBloc.state).thenReturn(const AuthState.unauthenticated());
-  });
-
-  Future<void> pumpHomeScreen(WidgetTester tester) async {
+  Future<void> pumpHomeScreen(
+    WidgetTester tester, {
+    List<Override> overrides = const [],
+  }) async {
     await tester.pumpWidget(
-      BlocProvider<AuthBloc>.value(
-        value: authBloc,
+      ProviderScope(
+        overrides: overrides,
         child: const MaterialApp(
           home: HomeScreen(),
         ),
@@ -40,14 +48,24 @@ void main() {
       expect(find.text('Welcome!'), findsOneWidget);
     });
 
-    testWidgets('adds AuthLogoutRequested when logout button is tapped',
-        (tester) async {
-      await pumpHomeScreen(tester);
+    testWidgets('calls signOut when logout button is tapped', (tester) async {
+      // Use a mock for the AuthController
+      final fakeAuthController = _FakeAuthController();
+      await tester.pumpWidget(
+        ProviderScope(
+          overrides: [
+            authControllerProvider.overrideWith(() => fakeAuthController),
+          ],
+          child: const MaterialApp(home: HomeScreen()),
+        ),
+      );
+      await tester.pumpAndSettle();
+      expect(fakeAuthController.signOutCalled, isFalse);
 
       await tester.tap(find.byKey(const Key('home_logout_button')));
       await tester.pump();
 
-      verify(() => authBloc.add(const AuthLogoutRequested())).called(1);
+      expect(fakeAuthController.signOutCalled, isTrue);
     });
   });
 }
